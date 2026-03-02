@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Column,
@@ -6,12 +8,19 @@ import {
   FormSubmitButton,
   Icon,
   Label,
+  ListItem,
   Loading,
   Row,
+  Select,
   TextField,
 } from '@umami/react-zen';
 import { useEffect, useState } from 'react';
-import { useConfig, useLinkQuery, useMessages } from '@/components/hooks';
+import {
+  useConfig,
+  useLinkQuery,
+  useMessages,
+  useUserCustomDomainsQuery,
+} from '@/components/hooks';
 import { useUpdateQuery } from '@/components/hooks/queries/useUpdateQuery';
 import { RefreshCw } from '@/components/icons';
 import { LINKS_URL } from '@/lib/constants';
@@ -39,28 +48,36 @@ export function LinkEditForm({
       teamId,
     },
   );
-  const { linksUrl } = useConfig();
-  const hostUrl = linksUrl || LINKS_URL;
+  const config = useConfig();
+  const hostUrl = config?.linksUrl || LINKS_URL;
   const { data, isLoading } = useLinkQuery(linkId);
   const [slug, setSlug] = useState(generateId());
+  const [customDomainId, setCustomDomainId] = useState<string>('');
 
-  const handleSubmit = async (data: any) => {
-    await mutateAsync(data, {
-      onSuccess: async () => {
-        toast(formatMessage(messages.saved));
-        touch('links');
-        onSave?.();
-        onClose?.();
+  const { data: customDomainsData } = useUserCustomDomainsQuery();
+  const verifiedDomains = config?.customDomainsEnabled ? (customDomainsData?.data ?? []) : [];
+
+  const selectedDomain = verifiedDomains.find((d: any) => d.id === customDomainId);
+  const linkBase = selectedDomain ? `https://${selectedDomain.domain}` : hostUrl;
+
+  const handleSubmit = async (formData: any) => {
+    await mutateAsync(
+      { ...formData, customDomainId: customDomainId || null },
+      {
+        onSuccess: async () => {
+          toast(formatMessage(messages.saved));
+          touch('links');
+          onSave?.();
+          onClose?.();
+        },
       },
-    });
+    );
   };
 
   const handleSlug = () => {
-    const slug = generateId();
-
-    setSlug(slug);
-
-    return slug;
+    const newSlug = generateId();
+    setSlug(newSlug);
+    return newSlug;
   };
 
   const checkUrl = (url: string) => {
@@ -73,6 +90,7 @@ export function LinkEditForm({
   useEffect(() => {
     if (data) {
       setSlug(data.slug);
+      setCustomDomainId(data.customDomainId ?? '');
     }
   }, [data]);
 
@@ -101,29 +119,48 @@ export function LinkEditForm({
               <TextField placeholder="https://example.com" autoComplete="off" />
             </FormField>
 
-            <FormField
-              name="slug"
-              rules={{
-                required: formatMessage(labels.required),
-              }}
-              style={{ display: 'none' }}
-            >
-              <input type="hidden" />
-            </FormField>
+            {config?.customDomainsEnabled && verifiedDomains.length > 0 && (
+              <Column gap="1">
+                <Label>{formatMessage(labels.trackingDomain)}</Label>
+                <Select
+                  value={customDomainId}
+                  onChange={(value: string) => setCustomDomainId(value)}
+                >
+                  <ListItem key="" id="">
+                    {formatMessage(labels.defaultDomain)}
+                  </ListItem>
+                  {verifiedDomains.map((d: any) => (
+                    <ListItem key={d.id} id={d.id}>
+                      {d.domain}
+                    </ListItem>
+                  ))}
+                </Select>
+              </Column>
+            )}
 
-            <Column>
+            <Column gap="1">
               <Label>{formatMessage(labels.link)}</Label>
               <Row alignItems="center" gap>
-                <TextField
-                  value={`${hostUrl}/${slug}`}
-                  autoComplete="off"
-                  isReadOnly
-                  allowCopy
-                  style={{ width: '100%' }}
-                />
+                <span style={{ whiteSpace: 'nowrap', color: 'var(--font-color300)' }}>
+                  {linkBase}/
+                </span>
+                <FormField
+                  name="slug"
+                  rules={{
+                    required: formatMessage(labels.required),
+                    validate: (v: string) =>
+                      /^[a-zA-Z0-9_-]+$/.test(v) || formatMessage(labels.invalidSlug),
+                  }}
+                  style={{ flex: 1 }}
+                >
+                  <TextField autoComplete="off" onChange={(v: string) => setSlug(v)} />
+                </FormField>
                 <Button
                   variant="quiet"
-                  onPress={() => setValue('slug', handleSlug(), { shouldDirty: true })}
+                  onPress={() => {
+                    const next = handleSlug();
+                    setValue('slug', next, { shouldDirty: true });
+                  }}
                 >
                   <Icon>
                     <RefreshCw />

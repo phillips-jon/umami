@@ -17,6 +17,51 @@
 
 ---
 
+## 🍴 Fork Changes
+
+This is a fork of [umami-software/umami](https://github.com/umami-software/umami) with the following additions:
+
+### Custom Tracking Domains
+
+Allows each tracked website to use a custom subdomain (e.g. `t.yourdomain.com`) for tracking scripts and link URLs, so analytics requests appear first-party and are less likely to be blocked by ad blockers.
+
+- Add and remove custom domains per website under **Website Settings → Custom Domains**
+- One-click DNS verification (checks that your subdomain CNAMEs to the Umami host)
+- Verified domains appear as selectable options in the tracking code snippet and link creation form
+- Feature is opt-in via environment variable:
+
+```bash
+ENABLE_CUSTOM_DOMAINS=true
+CUSTOM_DOMAIN_CNAME_TARGET=your-umami-hostname.com  # defaults to APP_URL hostname
+```
+
+Your reverse proxy (Caddy, Nginx, Cloudflare, etc.) must be configured to accept requests on the custom hostnames. SSL termination is handled at the infrastructure level, not by Umami. See [`docs/custom-domains.md`](docs/custom-domains.md) for infrastructure setup examples.
+
+### Editable Link Slugs
+
+When creating or editing a tracked link, you can now type a custom slug instead of always getting an auto-generated one. The slug field is editable inline with the base URL shown as a prefix. The refresh button still generates a random slug if you prefer. Slugs must contain only letters, numbers, hyphens, and underscores.
+
+### Link URLs Without `/q/` Prefix
+
+Tracked links now resolve at `/:slug` (e.g. `go.yourdomain.com/my-campaign`) instead of `/:slug` previously at `/q/:slug`. Any existing `/q/:slug` URLs redirect permanently (301) to the new path.
+
+### Bulk Link Import
+
+Import multiple tracked links at once from a CSV file via **Links → Import Links**.
+
+Supported CSV columns (header names are case-insensitive, parenthetical notes like "(optional)" are ignored):
+
+| Column | Required | Description |
+|---|---|---|
+| `Name` | Yes | Display name for the link |
+| `Destination URL` | Yes | The URL to redirect to |
+| `Tracking Domain` | No | A verified custom domain to use for this link |
+| `Link Slug` | No | Custom slug; auto-generated if omitted |
+
+The import dialog shows a preview table before submitting. Rows with validation errors are flagged and skipped; valid rows are imported immediately.
+
+---
+
 ## 🚀 Getting Started
 
 A detailed getting started guide can be found at [umami.is/docs](https://umami.is/docs/).

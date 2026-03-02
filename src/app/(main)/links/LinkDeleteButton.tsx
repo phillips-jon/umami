@@ -40,7 +40,7 @@ export function LinkDeleteButton({
             <FormattedMessage
               {...messages.confirmRemove}
               values={{
-                target: <b>{name}</b>,
+                target: <b key="target">{name}</b>,
               }}
             />
           }

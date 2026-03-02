@@ -334,6 +334,9 @@ export const labels = defineMessages({
   pixels: { id: 'label.pixels', defaultMessage: 'Pixels' },
   addBoard: { id: 'label.add-board', defaultMessage: 'Add board' },
   addLink: { id: 'label.add-link', defaultMessage: 'Add link' },
+  importLinks: { id: 'label.import-links', defaultMessage: 'Import links' },
+  import: { id: 'label.import', defaultMessage: 'Import' },
+  importing: { id: 'label.importing', defaultMessage: 'Importing...' },
   addPixel: { id: 'label.add-pixel', defaultMessage: 'Add pixel' },
   maximize: { id: 'label.maximize', defaultMessage: 'Maximize' },
   remaining: { id: 'label.remaining', defaultMessage: 'Remaining' },
@@ -357,12 +360,25 @@ export const labels = defineMessages({
   destinationUrl: { id: 'label.destination-url', defaultMessage: 'Destination URL' },
   audience: { id: 'label.audience', defaultMessage: 'Audience' },
   invalidUrl: { id: 'label.invalid-url', defaultMessage: 'Invalid URL' },
+  invalidSlug: {
+    id: 'label.invalid-slug',
+    defaultMessage: 'Only letters, numbers, hyphens and underscores allowed',
+  },
   environment: { id: 'label.environment', defaultMessage: 'Environment' },
   criteria: { id: 'label.criteria', defaultMessage: 'Criteria' },
   share: { id: 'label.share', defaultMessage: 'Share' },
   support: { id: 'label.support', defaultMessage: 'Support' },
   documentation: { id: 'label.documentation', defaultMessage: 'Documentation' },
   switchAccount: { id: 'label.switch-account', defaultMessage: 'Switch account' },
+  customDomains: { id: 'label.custom-domains', defaultMessage: 'Custom domains' },
+  addDomain: { id: 'label.add-domain', defaultMessage: 'Add domain' },
+  verified: { id: 'label.verified', defaultMessage: 'Verified' },
+  pending: { id: 'label.pending', defaultMessage: 'Pending' },
+  verify: { id: 'label.verify', defaultMessage: 'Verify' },
+  cnameRecord: { id: 'label.cname-record', defaultMessage: 'CNAME record' },
+  defaultDomain: { id: 'label.default-domain', defaultMessage: 'Default domain' },
+  trackingDomain: { id: 'label.tracking-domain', defaultMessage: 'Tracking domain' },
+  deleteDomain: { id: 'label.delete-domain', defaultMessage: 'Delete domain' },
 });
 
 export const messages = defineMessages({
@@ -399,6 +415,11 @@ export const messages = defineMessages({
   shareUrl: {
     id: 'message.share-url',
     defaultMessage: 'Your website stats are publicly available at the following URL:',
+  },
+  importLinksHelp: {
+    id: 'message.import-links-help',
+    defaultMessage:
+      'Upload a CSV with a header row and the following columns: Name, Destination URL, Tracking Domain (optional), Link Slug (optional). Rows with errors will be skipped.',
   },
   trackingCode: {
     id: 'message.tracking-code',
@@ -514,5 +535,26 @@ export const messages = defineMessages({
   serverError: {
     id: 'message.sever-error',
     defaultMessage: 'Server error',
+  },
+  customDomainsDescription: {
+    id: 'message.custom-domains-description',
+    defaultMessage:
+      'Add custom tracking domains to serve analytics as first-party requests. Each domain must have a CNAME record pointing to this instance.',
+  },
+  cnameInstructions: {
+    id: 'message.cname-instructions',
+    defaultMessage: 'Add this CNAME record to your DNS provider:',
+  },
+  domainVerified: {
+    id: 'message.domain-verified',
+    defaultMessage: 'Domain verified successfully.',
+  },
+  domainVerificationFailed: {
+    id: 'message.domain-verification-failed',
+    defaultMessage: 'Verification failed. {message}',
+  },
+  dnsPropagationNote: {
+    id: 'message.dns-propagation-note',
+    defaultMessage: 'DNS changes can take up to 48 hours to propagate.',
   },
 });
