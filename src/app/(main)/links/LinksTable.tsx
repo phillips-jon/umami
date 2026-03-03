@@ -19,8 +19,8 @@ export function LinksTable(props: DataTableProps) {
         }}
       </DataColumn>
       <DataColumn id="slug" label={formatMessage(labels.link)}>
-        {({ slug }: any) => {
-          const url = getSlugUrl(slug);
+        {({ slug, customDomain }: any) => {
+          const url = customDomain ? `https://${customDomain.domain}/${slug}` : getSlugUrl(slug);
           return (
             <ExternalLink href={url} prefetch={false}>
               {url}

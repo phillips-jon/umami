@@ -7,9 +7,12 @@ export async function findLink(criteria: Prisma.LinkFindUniqueArgs) {
 }
 
 export async function getLink(linkId: string) {
-  return findLink({
+  return prisma.client.link.findUnique({
     where: {
       id: linkId,
+    },
+    include: {
+      customDomain: true,
     },
   });
 }
@@ -36,6 +39,9 @@ export async function getUserLinks(userId: string, filters?: QueryFilters) {
       where: {
         userId,
         deletedAt: null,
+      },
+      include: {
+        customDomain: true,
       },
     },
     filters,
