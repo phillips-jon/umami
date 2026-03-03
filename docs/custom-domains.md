@@ -7,7 +7,7 @@ Custom domains let you serve Umami's tracking script and API from a first-party 
 1. You register a subdomain in Website Settings → Custom Domains
 2. Umami shows you the CNAME record to add at your DNS provider
 3. You click Verify once the DNS record has propagated
-4. The verified domain appears as a selectable option in your tracking code snippet and link creation form
+4. The verified domain appears as a selectable option in your tracking code snippet, link creation form, and pixel creation form
 5. Your reverse proxy (Caddy, Nginx, or Cloudflare) must already be configured to accept that hostname and proxy it to your Umami instance
 
 Umami does **not** provision SSL certificates or create DNS records automatically. Those are infrastructure concerns handled outside the app.

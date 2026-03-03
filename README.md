@@ -27,7 +27,7 @@ Allows each tracked website to use a custom subdomain (e.g. `t.yourdomain.com`) 
 
 - Add and remove custom domains per website under **Website Settings → Custom Domains**
 - One-click DNS verification (checks that your subdomain CNAMEs to the Umami host)
-- Verified domains appear as selectable options in the tracking code snippet and link creation form
+- Verified domains appear as selectable options in the tracking code snippet, link creation form, and pixel creation form
 - Feature is opt-in via environment variable:
 
 ```bash
