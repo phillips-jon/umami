@@ -11,6 +11,9 @@ export async function getPixel(pixelId: string) {
     where: {
       id: pixelId,
     },
+    include: {
+      customDomain: true,
+    },
   });
 }
 
@@ -30,6 +33,9 @@ export async function getUserPixels(userId: string, filters?: QueryFilters) {
     {
       where: {
         userId,
+      },
+      include: {
+        customDomain: true,
       },
     },
     filters,

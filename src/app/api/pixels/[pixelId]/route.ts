@@ -2,7 +2,12 @@ import { z } from 'zod';
 import { parseRequest } from '@/lib/request';
 import { badRequest, json, ok, serverError, unauthorized } from '@/lib/response';
 import { canDeletePixel, canUpdatePixel, canViewPixel } from '@/permissions';
-import { deletePixel, getPixel, updatePixel } from '@/queries/prisma';
+import {
+  deletePixel,
+  getPixel,
+  getVerifiedCustomDomainsForUser,
+  updatePixel,
+} from '@/queries/prisma';
 
 export async function GET(request: Request, { params }: { params: Promise<{ pixelId: string }> }) {
   const { auth, error } = await parseRequest(request);
@@ -26,6 +31,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pix
   const schema = z.object({
     name: z.string().optional(),
     slug: z.string().min(8).optional(),
+    customDomainId: z.uuid().nullable().optional(),
   });
 
   const { auth, body, error } = await parseRequest(request, schema);
@@ -35,14 +41,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ pix
   }
 
   const { pixelId } = await params;
-  const { name, slug } = body;
+  const { name, slug, customDomainId } = body;
 
   if (!(await canUpdatePixel(auth, pixelId))) {
     return unauthorized();
   }
 
+  if (customDomainId) {
+    const allowed = await getVerifiedCustomDomainsForUser(auth.user.id);
+    if (!allowed.some(d => d.id === customDomainId)) {
+      return badRequest({ message: 'Invalid custom domain.' });
+    }
+  }
+
   try {
-    const pixel = await updatePixel(pixelId, { name, slug });
+    const pixel = await updatePixel(pixelId, { name, slug, customDomainId });
 
     return Response.json(pixel);
   } catch (e: any) {

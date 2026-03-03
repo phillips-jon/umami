@@ -8,10 +8,13 @@ export function PixelHeader() {
   const { formatMessage, labels } = useMessages();
   const { getSlugUrl } = useSlug('pixel');
   const pixel = usePixel();
+  const viewUrl = pixel.customDomain
+    ? `https://${pixel.customDomain.domain}/${pixel.slug}`
+    : getSlugUrl(pixel.slug);
 
   return (
     <PageHeader title={pixel.name} icon={<Grid2x2 />}>
-      <LinkButton href={getSlugUrl(pixel.slug)} target="_blank" prefetch={false} asAnchor>
+      <LinkButton href={viewUrl} target="_blank" prefetch={false} asAnchor>
         <IconLabel icon={<ExternalLink />} label={formatMessage(labels.view)} />
       </LinkButton>
     </PageHeader>

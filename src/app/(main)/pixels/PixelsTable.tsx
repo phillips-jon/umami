@@ -19,8 +19,8 @@ export function PixelsTable(props: DataTableProps) {
         }}
       </DataColumn>
       <DataColumn id="url" label="URL">
-        {({ slug }: any) => {
-          const url = getSlugUrl(slug);
+        {({ slug, customDomain }: any) => {
+          const url = customDomain ? `https://${customDomain.domain}/${slug}` : getSlugUrl(slug);
           return (
             <ExternalLink href={url} prefetch={false}>
               {url}

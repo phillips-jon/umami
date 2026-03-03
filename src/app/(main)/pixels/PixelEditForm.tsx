@@ -6,12 +6,19 @@ import {
   FormSubmitButton,
   Icon,
   Label,
+  ListItem,
   Loading,
   Row,
+  Select,
   TextField,
 } from '@umami/react-zen';
 import { useEffect, useState } from 'react';
-import { useConfig, useMessages, usePixelQuery } from '@/components/hooks';
+import {
+  useConfig,
+  useMessages,
+  usePixelQuery,
+  useUserCustomDomainsQuery,
+} from '@/components/hooks';
 import { useUpdateQuery } from '@/components/hooks/queries/useUpdateQuery';
 import { RefreshCw } from '@/components/icons';
 import { PIXELS_URL } from '@/lib/constants';
@@ -38,20 +45,30 @@ export function PixelEditForm({
       teamId,
     },
   );
-  const { pixelsUrl } = useConfig();
-  const hostUrl = pixelsUrl || PIXELS_URL;
+  const config = useConfig();
+  const hostUrl = config?.pixelsUrl || PIXELS_URL;
   const { data, isLoading } = usePixelQuery(pixelId);
   const [slug, setSlug] = useState(generateId());
+  const [customDomainId, setCustomDomainId] = useState<string>('');
 
-  const handleSubmit = async (data: any) => {
-    await mutateAsync(data, {
-      onSuccess: async () => {
-        toast(formatMessage(messages.saved));
-        touch('pixels');
-        onSave?.();
-        onClose?.();
+  const { data: customDomainsData } = useUserCustomDomainsQuery();
+  const verifiedDomains = config?.customDomainsEnabled ? (customDomainsData?.data ?? []) : [];
+
+  const selectedDomain = verifiedDomains.find((d: any) => d.id === customDomainId);
+  const pixelBase = selectedDomain ? `https://${selectedDomain.domain}` : hostUrl;
+
+  const handleSubmit = async (formData: any) => {
+    await mutateAsync(
+      { ...formData, customDomainId: customDomainId || null },
+      {
+        onSuccess: async () => {
+          toast(formatMessage(messages.saved));
+          touch('pixels');
+          onSave?.();
+          onClose?.();
+        },
       },
-    });
+    );
   };
 
   const handleSlug = () => {
@@ -65,6 +82,7 @@ export function PixelEditForm({
   useEffect(() => {
     if (data) {
       setSlug(data.slug);
+      setCustomDomainId(data.customDomainId ?? '');
     }
   }, [data]);
 
@@ -95,11 +113,30 @@ export function PixelEditForm({
               <input type="hidden" />
             </FormField>
 
+            {config?.customDomainsEnabled && verifiedDomains.length > 0 && (
+              <Column gap="1">
+                <Label>{formatMessage(labels.trackingDomain)}</Label>
+                <Select
+                  value={customDomainId}
+                  onChange={(value: string) => setCustomDomainId(value)}
+                >
+                  <ListItem key="" id="">
+                    {formatMessage(labels.defaultDomain)}
+                  </ListItem>
+                  {verifiedDomains.map((d: any) => (
+                    <ListItem key={d.id} id={d.id}>
+                      {d.domain}
+                    </ListItem>
+                  ))}
+                </Select>
+              </Column>
+            )}
+
             <Column>
               <Label>{formatMessage(labels.link)}</Label>
               <Row alignItems="center" gap>
                 <TextField
-                  value={`${hostUrl}/${slug}`}
+                  value={`${pixelBase}/${slug}`}
                   autoComplete="off"
                   isReadOnly
                   allowCopy
