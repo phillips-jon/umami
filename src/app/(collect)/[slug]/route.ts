@@ -41,12 +41,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     }
   }
 
+  const referrer = request.headers.get('referer');
   const payload = {
     type: 'event',
     payload: {
       link: link.id,
       url: request.url,
-      referrer: request.headers.get('referer'),
+      ...(referrer && { referrer }),
     },
   };
 
@@ -56,7 +57,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     body: JSON.stringify(payload),
   });
 
-  await POST(req);
+  const res = await POST(req);
+  if (!res.ok) {
+    console.error('Link tracking failed:', await res.text());
+  }
 
   return NextResponse.redirect(link.url);
 }
