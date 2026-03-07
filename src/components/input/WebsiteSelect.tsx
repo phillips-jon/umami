@@ -65,7 +65,6 @@ export function WebsiteSelect({
       renderValue={renderValue}
       listProps={{
         renderEmptyState: () => <Empty message={formatMessage(messages.noResultsFound)} />,
-        style: { maxHeight: '400px' },
       }}
     >
       {({ id, name }: any) => <ListItem key={id}>{name}</ListItem>}
