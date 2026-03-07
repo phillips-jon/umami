@@ -42,4 +42,5 @@ yarn-error.log*
 *.env.*
 
 *.dev.yml
+docker-compose.override.yml
 
