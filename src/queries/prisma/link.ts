@@ -33,6 +33,28 @@ export async function getLinks(criteria: Prisma.LinkFindManyArgs, filters: Query
   return pagedQuery('link', { ...criteria, where }, filters);
 }
 
+async function appendClickCounts(result: any) {
+  if (!result?.data?.length) return result;
+
+  const linkIds: string[] = result.data.map((link: any) => link.id);
+  const placeholders = linkIds.map((_, i) => `$${i + 1}::uuid`).join(',');
+  const counts: any[] = await prisma.client.$queryRawUnsafe(
+    `select website_id as "linkId", count(*)::int as "clicks"
+     from website_event
+     where website_id in (${placeholders})
+     group by website_id`,
+    ...linkIds,
+  );
+
+  const countMap = new Map(counts.map((c: any) => [c.linkId, c.clicks]));
+  result.data = result.data.map((link: any) => ({
+    ...link,
+    clicks: countMap.get(link.id) || 0,
+  }));
+
+  return result;
+}
+
 export async function getUserLinks(
   userId: string,
   filters?: QueryFilters,
@@ -47,7 +69,7 @@ export async function getUserLinks(
     where.customDomainId = customDomainId;
   }
 
-  return getLinks(
+  const result = await getLinks(
     {
       where,
       include: {
@@ -56,6 +78,8 @@ export async function getUserLinks(
     },
     filters,
   );
+
+  return appendClickCounts(result);
 }
 
 export async function getTeamLinks(
@@ -71,7 +95,7 @@ export async function getTeamLinks(
     where.customDomainId = customDomainId;
   }
 
-  return getLinks(
+  const result = await getLinks(
     {
       where,
       include: {
@@ -80,6 +104,8 @@ export async function getTeamLinks(
     },
     filters,
   );
+
+  return appendClickCounts(result);
 }
 
 export async function createLink(data: Prisma.LinkUncheckedCreateInput) {
