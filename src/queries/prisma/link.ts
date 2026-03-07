@@ -33,13 +33,23 @@ export async function getLinks(criteria: Prisma.LinkFindManyArgs, filters: Query
   return pagedQuery('link', { ...criteria, where }, filters);
 }
 
-export async function getUserLinks(userId: string, filters?: QueryFilters) {
+export async function getUserLinks(
+  userId: string,
+  filters?: QueryFilters,
+  customDomainId?: string,
+) {
+  const where: Prisma.LinkWhereInput = {
+    userId,
+    deletedAt: null,
+  };
+
+  if (customDomainId) {
+    where.customDomainId = customDomainId;
+  }
+
   return getLinks(
     {
-      where: {
-        userId,
-        deletedAt: null,
-      },
+      where,
       include: {
         customDomain: true,
       },
@@ -48,11 +58,24 @@ export async function getUserLinks(userId: string, filters?: QueryFilters) {
   );
 }
 
-export async function getTeamLinks(teamId: string, filters?: QueryFilters) {
+export async function getTeamLinks(
+  teamId: string,
+  filters?: QueryFilters,
+  customDomainId?: string,
+) {
+  const where: Prisma.LinkWhereInput = {
+    teamId,
+  };
+
+  if (customDomainId) {
+    where.customDomainId = customDomainId;
+  }
+
   return getLinks(
     {
-      where: {
-        teamId,
+      where,
+      include: {
+        customDomain: true,
       },
     },
     filters,

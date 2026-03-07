@@ -10,6 +10,7 @@ export async function GET(request: Request) {
   const schema = z.object({
     ...pagingParams,
     ...searchParams,
+    customDomainId: z.string().optional(),
   });
 
   const { auth, query, error } = await parseRequest(request, schema);
@@ -18,9 +19,10 @@ export async function GET(request: Request) {
     return error();
   }
 
-  const filters = await getQueryFilters(query);
+  const { customDomainId, ...queryParams } = query;
+  const filters = await getQueryFilters(queryParams);
 
-  const links = await getUserLinks(auth.user.id, filters);
+  const links = await getUserLinks(auth.user.id, filters, customDomainId);
 
   return json(links);
 }

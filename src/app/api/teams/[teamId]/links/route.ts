@@ -9,6 +9,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ team
   const schema = z.object({
     ...pagingParams,
     ...searchParams,
+    customDomainId: z.string().optional(),
   });
   const { teamId } = await params;
   const { auth, query, error } = await parseRequest(request, schema);
@@ -21,9 +22,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ team
     return unauthorized();
   }
 
-  const filters = await getQueryFilters(query);
+  const { customDomainId, ...queryParams } = query;
+  const filters = await getQueryFilters(queryParams);
 
-  const links = await getTeamLinks(teamId, filters);
+  const links = await getTeamLinks(teamId, filters, customDomainId);
 
   return json(links);
 }
