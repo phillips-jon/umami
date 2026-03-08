@@ -30,7 +30,7 @@ export async function getLinks(criteria: Prisma.LinkFindManyArgs, filters: Query
     ]),
   };
 
-  return pagedQuery('link', { ...criteria, where }, filters);
+  return pagedQuery('link', { ...criteria, where, orderBy: { createdAt: 'desc' } }, filters);
 }
 
 async function appendClickCounts(result: any) {

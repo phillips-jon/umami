@@ -9,7 +9,8 @@ import {
 } from '@umami/react-zen';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useMessages, useNavigation, useSlug } from '@/components/hooks';
+import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
+import { useMessages, useMobile, useNavigation, useSlug } from '@/components/hooks';
 import { BarChart2, Check, Copy } from '@/components/icons';
 import { LinkDeleteButton } from './LinkDeleteButton';
 import { LinkEditButton } from './LinkEditButton';
@@ -34,10 +35,77 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-export function LinksTable(props: DataTableProps) {
+function LinkMobileCard({ row }: { row: any }) {
   const { formatMessage, labels } = useMessages();
   const { websiteId, renderUrl } = useNavigation();
   const { getSlugUrl } = useSlug('link');
+
+  const { id, name, clicks, slug, customDomain, url, createdAt } = row;
+  const linkUrl = customDomain ? `https://${customDomain.domain}/${slug}` : getSlugUrl(slug);
+
+  return (
+    <MobileCard>
+      <MobileCardField label={formatMessage(labels.name)}>
+        <MobileCardRow>
+          <Link href={renderUrl(`/links/${id}`)}>{name}</Link>
+          <Row alignItems="center" gap="1">
+            <Icon size="xs" strokeColor="muted">
+              <BarChart2 />
+            </Icon>
+            <Text color="muted" style={{ fontSize: '11px' }}>
+              {(clicks ?? 0).toLocaleString()}
+            </Text>
+          </Row>
+        </MobileCardRow>
+      </MobileCardField>
+
+      <MobileCardField label={formatMessage(labels.link)}>
+        <Row alignItems="center" gap="2">
+          <CopyButton text={linkUrl} />
+          <Text style={{ wordBreak: 'break-all' }}>
+            <Link href={linkUrl} target="_blank" prefetch={false}>
+              {linkUrl}
+            </Link>
+          </Text>
+        </Row>
+      </MobileCardField>
+
+      <MobileCardField label={formatMessage(labels.destinationUrl)}>
+        <Text style={{ wordBreak: 'break-all' }}>
+          <Link href={url} target="_blank" prefetch={false}>
+            {url}
+          </Link>
+        </Text>
+      </MobileCardField>
+
+      <MobileCardRow>
+        <Text size="2" color="muted">
+          {new Date(createdAt).toLocaleDateString()}
+        </Text>
+        <Row>
+          <LinkEditButton linkId={id} />
+          <LinkDeleteButton linkId={id} websiteId={websiteId} name={name} />
+        </Row>
+      </MobileCardRow>
+    </MobileCard>
+  );
+}
+
+export function LinksTable({ displayMode, ...props }: DataTableProps & { displayMode?: string }) {
+  const { formatMessage, labels } = useMessages();
+  const { websiteId, renderUrl } = useNavigation();
+  const { getSlugUrl } = useSlug('link');
+  const { isMobile } = useMobile();
+
+  if (isMobile && props.data) {
+    return (
+      <Column gap="4">
+        {props.data.map((row: any) => (
+          <LinkMobileCard key={row.id} row={row} />
+        ))}
+      </Column>
+    );
+  }
 
   return (
     <DataTable {...props}>

@@ -1,14 +1,71 @@
-import { DataColumn, DataTable, type DataTableProps } from '@umami/react-zen';
+import { Column, DataColumn, DataTable, type DataTableProps, Row, Text } from '@umami/react-zen';
 import Link from 'next/link';
 import { Avatar } from '@/components/common/Avatar';
 import { DateDistance } from '@/components/common/DateDistance';
+import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
 import { TypeIcon } from '@/components/common/TypeIcon';
-import { useFormat, useMessages, useNavigation } from '@/components/hooks';
+import { useFormat, useMessages, useMobile, useNavigation } from '@/components/hooks';
 
-export function SessionsTable(props: DataTableProps) {
+function SessionMobileCard({ row }: { row: any }) {
   const { formatMessage, labels } = useMessages();
   const { formatValue } = useFormat();
   const { updateParams } = useNavigation();
+
+  return (
+    <MobileCard>
+      <MobileCardRow>
+        <Link href={updateParams({ session: row.id })}>
+          <Row alignItems="center" gap="2">
+            <Avatar seed={row.id} size={32} />
+            <Text size="2" color="muted">
+              {row.visits} {formatMessage(labels.visits).toLowerCase()}, {row.views}{' '}
+              {formatMessage(labels.views).toLowerCase()}
+            </Text>
+          </Row>
+        </Link>
+      </MobileCardRow>
+      <MobileCardField label={formatMessage(labels.country)}>
+        <TypeIcon type="country" value={row.country}>
+          {row.city ? `${row.city}, ` : ''}
+          {formatValue(row.country, 'country')}
+        </TypeIcon>
+      </MobileCardField>
+      <MobileCardRow>
+        <TypeIcon type="browser" value={row.browser}>
+          {formatValue(row.browser, 'browser')}
+        </TypeIcon>
+        <TypeIcon type="device" value={row.device}>
+          {formatValue(row.device, 'device')}
+        </TypeIcon>
+      </MobileCardRow>
+      <MobileCardRow>
+        <Text size="2" color="muted">
+          <DateDistance date={new Date(row.createdAt)} />
+        </Text>
+        <div />
+      </MobileCardRow>
+    </MobileCard>
+  );
+}
+
+export function SessionsTable({
+  displayMode,
+  ...props
+}: DataTableProps & { displayMode?: string }) {
+  const { formatMessage, labels } = useMessages();
+  const { formatValue } = useFormat();
+  const { updateParams } = useNavigation();
+  const { isMobile } = useMobile();
+
+  if (isMobile && props.data) {
+    return (
+      <Column gap="4">
+        {props.data.map((row: any, i: number) => (
+          <SessionMobileCard key={row.id || i} row={row} />
+        ))}
+      </Column>
+    );
+  }
 
   return (
     <DataTable {...props}>

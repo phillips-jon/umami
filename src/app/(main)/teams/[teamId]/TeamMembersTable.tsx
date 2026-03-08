@@ -1,19 +1,60 @@
-import { DataColumn, DataTable, Row } from '@umami/react-zen';
-import { useMessages } from '@/components/hooks';
+import { Column, DataColumn, DataTable, Row, Text } from '@umami/react-zen';
+import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
+import { useMessages, useMobile } from '@/components/hooks';
 import { ROLES } from '@/lib/constants';
 import { TeamMemberEditButton } from './TeamMemberEditButton';
 import { TeamMemberRemoveButton } from './TeamMemberRemoveButton';
+
+function TeamMemberMobileCard({
+  row,
+  teamId,
+  allowEdit,
+  roles,
+}: {
+  row: any;
+  teamId: string;
+  allowEdit: boolean;
+  roles: Record<string, string>;
+}) {
+  const { formatMessage, labels } = useMessages();
+
+  return (
+    <MobileCard>
+      <MobileCardField label={formatMessage(labels.username)}>
+        {row?.user?.username}
+      </MobileCardField>
+      <MobileCardRow>
+        <Text size="2" color="muted">
+          {roles[row?.role]}
+        </Text>
+        {allowEdit && row?.role !== ROLES.teamOwner && (
+          <Row alignItems="center">
+            <TeamMemberEditButton teamId={teamId} userId={row?.user?.id} role={row?.role} />
+            <TeamMemberRemoveButton
+              teamId={teamId}
+              userId={row?.user?.id}
+              userName={row?.user?.username}
+            />
+          </Row>
+        )}
+      </MobileCardRow>
+    </MobileCard>
+  );
+}
 
 export function TeamMembersTable({
   data = [],
   teamId,
   allowEdit = false,
+  displayMode,
 }: {
   data: any[];
   teamId: string;
   allowEdit: boolean;
+  displayMode?: string;
 }) {
   const { formatMessage, labels } = useMessages();
+  const { isMobile } = useMobile();
 
   const roles = {
     [ROLES.teamOwner]: formatMessage(labels.teamOwner),
@@ -21,6 +62,22 @@ export function TeamMembersTable({
     [ROLES.teamMember]: formatMessage(labels.teamMember),
     [ROLES.teamViewOnly]: formatMessage(labels.viewOnly),
   };
+
+  if (isMobile) {
+    return (
+      <Column gap="4">
+        {data.map((row: any, i: number) => (
+          <TeamMemberMobileCard
+            key={row?.user?.id || i}
+            row={row}
+            teamId={teamId}
+            allowEdit={allowEdit}
+            roles={roles}
+          />
+        ))}
+      </Column>
+    );
+  }
 
   return (
     <DataTable data={data}>
