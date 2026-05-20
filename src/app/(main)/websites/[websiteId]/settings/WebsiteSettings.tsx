@@ -1,14 +1,14 @@
 import { Column } from '@umami/react-zen';
 import { Panel } from '@/components/common/Panel';
-import { useConfig, useWebsite } from '@/components/hooks';
+import { useConfig } from '@/components/hooks';
 import { WebsiteCustomDomains } from './WebsiteCustomDomains';
 import { WebsiteData } from './WebsiteData';
 import { WebsiteEditForm } from './WebsiteEditForm';
+import { WebsiteReplaySettings } from './WebsiteReplaySettings';
 import { WebsiteShareForm } from './WebsiteShareForm';
 import { WebsiteTrackingCode } from './WebsiteTrackingCode';
 
 export function WebsiteSettings({ websiteId }: { websiteId: string; openExternal?: boolean }) {
-  const website = useWebsite();
   const config = useConfig();
 
   return (
@@ -25,7 +25,10 @@ export function WebsiteSettings({ websiteId }: { websiteId: string; openExternal
         </Panel>
       )}
       <Panel>
-        <WebsiteShareForm websiteId={websiteId} shareId={website.shareId} />
+        <WebsiteReplaySettings websiteId={websiteId} />
+      </Panel>
+      <Panel>
+        <WebsiteShareForm websiteId={websiteId} />
       </Panel>
       <Panel>
         <WebsiteData websiteId={websiteId} />

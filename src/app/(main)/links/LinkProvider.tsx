@@ -4,7 +4,9 @@ import { createContext, type ReactNode } from 'react';
 import { useLinkQuery } from '@/components/hooks/queries/useLinkQuery';
 import type { Link } from '@/generated/prisma/client';
 
-export const LinkContext = createContext<Link>(null);
+type LinkWithRelations = Link & { customDomain?: { id: string; domain: string } | null };
+
+export const LinkContext = createContext<LinkWithRelations>(null);
 
 export function LinkProvider({ linkId, children }: { linkId?: string; children: ReactNode }) {
   const { data: link, isLoading, isFetching } = useLinkQuery(linkId);

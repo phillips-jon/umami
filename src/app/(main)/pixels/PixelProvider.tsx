@@ -4,7 +4,9 @@ import { createContext, type ReactNode } from 'react';
 import { usePixelQuery } from '@/components/hooks/queries/usePixelQuery';
 import type { Pixel } from '@/generated/prisma/client';
 
-export const PixelContext = createContext<Pixel>(null);
+type PixelWithRelations = Pixel & { customDomain?: { id: string; domain: string } | null };
+
+export const PixelContext = createContext<PixelWithRelations>(null);
 
 export function PixelProvider({ pixelId, children }: { pixelId?: string; children: ReactNode }) {
   const { data: pixel, isLoading, isFetching } = usePixelQuery(pixelId);

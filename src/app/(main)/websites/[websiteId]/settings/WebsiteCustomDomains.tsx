@@ -43,7 +43,7 @@ function DomainRow({
   websiteId: string;
   onChanged: () => void;
 }) {
-  const { formatMessage, labels, messages, getErrorMessage } = useMessages();
+  const { t, labels, messages, getErrorMessage } = useMessages();
 
   const {
     mutateAsync: deleteDomain,
@@ -72,10 +72,10 @@ function DomainRow({
       {
         onSuccess: (data: any) => {
           if (data.verified) {
-            toast(formatMessage(messages.domainVerified));
+            toast(t(messages.domainVerified));
           } else {
             toast(
-              formatMessage(messages.domainVerificationFailed, {
+              t(messages.domainVerificationFailed, {
                 message: data.message ?? '',
               }),
             );
@@ -91,12 +91,12 @@ function DomainRow({
     <Column gap="2">
       <Row alignItems="center" justifyContent="space-between">
         <Row alignItems="center" gap="2">
-          <Icon size="sm" color={domain.verified ? 'success' : 'muted'}>
+          <Icon size="sm" color={domain.verified ? undefined : 'muted'}>
             {domain.verified ? <CheckCircle /> : <Clock />}
           </Icon>
           <Text>{domain.domain}</Text>
           <Text color="muted" size="xs">
-            {domain.verified ? formatMessage(labels.verified) : formatMessage(labels.pending)}
+            {domain.verified ? t(labels.verified) : t(labels.pending)}
           </Text>
         </Row>
         <Row gap="2" alignItems="center">
@@ -105,7 +105,7 @@ function DomainRow({
               <Icon>
                 <RefreshCw />
               </Icon>
-              {formatMessage(labels.verify)}
+              {t(labels.verify)}
             </Button>
           )}
           <Button variant="quiet" isDisabled={isDeleting} onPress={handleDelete}>
@@ -117,10 +117,10 @@ function DomainRow({
       </Row>
       {!domain.verified && cnameTarget && (
         <Column gap="1" paddingLeft="6">
-          <Text color="muted">{formatMessage(messages.cnameInstructions)}</Text>
+          <Text color="muted">{t(messages.cnameInstructions)}</Text>
           <TextField value={`${domain.domain} CNAME ${cnameTarget}`} isReadOnly allowCopy />
           <Text color="muted" size="sm">
-            {formatMessage(messages.dnsPropagationNote)}
+            {t(messages.dnsPropagationNote)}
           </Text>
         </Column>
       )}
@@ -129,7 +129,7 @@ function DomainRow({
 }
 
 export function WebsiteCustomDomains({ websiteId }: { websiteId: string }) {
-  const { formatMessage, labels, messages, getErrorMessage } = useMessages();
+  const { t, labels, messages, getErrorMessage } = useMessages();
   const { data, isLoading, refetch } = useCustomDomainsQuery(websiteId);
   const {
     mutateAsync: addDomain,
@@ -152,7 +152,7 @@ export function WebsiteCustomDomains({ websiteId }: { websiteId: string }) {
 
   const checkDomain = (value: string) => {
     if (!DOMAIN_REGEX.test(value)) {
-      return formatMessage(messages.invalidDomain);
+      return t(messages.invalidDomain);
     }
     return true;
   };
@@ -160,8 +160,8 @@ export function WebsiteCustomDomains({ websiteId }: { websiteId: string }) {
   return (
     <Column gap="6">
       <Column gap>
-        <Label>{formatMessage(labels.customDomains)}</Label>
-        <Text color="muted">{formatMessage(messages.customDomainsDescription)}</Text>
+        <Label>{t(labels.customDomains)}</Label>
+        <Text color="muted">{t(messages.customDomainsDescription)}</Text>
       </Column>
 
       {isLoading ? (
@@ -184,13 +184,13 @@ export function WebsiteCustomDomains({ websiteId }: { websiteId: string }) {
         <Row gap alignItems="flex-end">
           <FormField
             name="domain"
-            label={formatMessage(labels.addDomain)}
-            rules={{ required: formatMessage(labels.required), validate: checkDomain }}
+            label={t(labels.addDomain)}
+            rules={{ required: t(labels.required), validate: checkDomain }}
             style={{ flex: 1 }}
           >
             <TextField placeholder="t.example.com" autoComplete="off" />
           </FormField>
-          <FormSubmitButton isDisabled={isPending}>{formatMessage(labels.add)}</FormSubmitButton>
+          <FormSubmitButton isDisabled={isPending}>{t(labels.add)}</FormSubmitButton>
         </Row>
       </Form>
     </Column>

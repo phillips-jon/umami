@@ -13,7 +13,7 @@ export function WebsiteTrackingCode({
   websiteId: string;
   hostUrl?: string;
 }) {
-  const { formatMessage, messages, labels } = useMessages();
+  const { t, messages, labels } = useMessages();
   const config = useConfig();
   const [selectedDomain, setSelectedDomain] = useState<string>('');
 
@@ -25,14 +25,14 @@ export function WebsiteTrackingCode({
   const trackerScriptName =
     config?.trackerScriptName?.split(',')?.map((n: string) => n.trim())?.[0] || SCRIPT_NAME;
 
-  const getDefaultUrl = () => {
+  const getDefaultUrl = (scriptName: string) => {
     if (config?.cloudMode) {
-      return `${process.env.cloudUrl}/${trackerScriptName}`;
+      return `${process.env.cloudUrl}/${scriptName}`;
     }
 
     return `${hostUrl || window?.location?.origin || ''}${
       process.env.basePath || ''
-    }/${trackerScriptName}`;
+    }/${scriptName}`;
   };
 
   const getUrl = (domain?: string) => {
@@ -44,7 +44,7 @@ export function WebsiteTrackingCode({
       return `https://${domain}${process.env.basePath || ''}/${trackerScriptName}`;
     }
 
-    return getDefaultUrl();
+    return getDefaultUrl(trackerScriptName);
   };
 
   const url = getUrl(selectedDomain || undefined);
@@ -54,14 +54,14 @@ export function WebsiteTrackingCode({
 
   return (
     <Column gap>
-      <Label>{formatMessage(labels.trackingCode)}</Label>
-      <Text color="muted">{formatMessage(messages.trackingCode)}</Text>
+      <Label>{t(labels.trackingCode)}</Label>
+      <Text color="muted">{t(messages.trackingCode)}</Text>
       {showDomainSelector && (
         <Column gap="1">
-          <Label>{formatMessage(labels.trackingDomain)}</Label>
+          <Label>{t(labels.trackingDomain)}</Label>
           <Select value={selectedDomain} onChange={(value: string) => setSelectedDomain(value)}>
             <ListItem key="" id="">
-              {formatMessage(labels.defaultDomain)}
+              {t(labels.defaultDomain)}
             </ListItem>
             {verifiedDomains.map((d: any) => (
               <ListItem key={d.id} id={d.domain}>
@@ -71,7 +71,14 @@ export function WebsiteTrackingCode({
           </Select>
         </Column>
       )}
-      <TextField value={code} isReadOnly allowCopy asTextArea resize="none" />
+      <TextField
+        value={code}
+        isReadOnly
+        allowCopy
+        asTextArea
+        resize="none"
+        className="code-textarea"
+      />
     </Column>
   );
 }

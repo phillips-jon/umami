@@ -9,9 +9,9 @@ import {
   Row,
   Text,
 } from '@umami/react-zen';
-import Link from 'next/link';
 import { useState } from 'react';
 import { DateDistance } from '@/components/common/DateDistance';
+import Link from '@/components/common/Link';
 import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
 import { useMessages, useMobile } from '@/components/hooks';
 import { Edit, Trash } from '@/components/icons';
@@ -27,24 +27,24 @@ function AdminTeamMobileCard({
   showActions: boolean;
   onDelete: (id: string) => void;
 }) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
   const ownerName = row?.members?.[0]?.user?.username;
 
   return (
     <MobileCard>
-      <MobileCardField label={formatMessage(labels.name)}>
+      <MobileCardField label={t(labels.name)}>
         <Link href={`/admin/teams/${row.id}`}>{row.name}</Link>
       </MobileCardField>
-      <MobileCardField label={formatMessage(labels.owner)}>
+      <MobileCardField label={t(labels.owner)}>
         <Link href={`/admin/users/${row?.members?.[0]?.user?.id}`}>{ownerName}</Link>
       </MobileCardField>
       <MobileCardRow>
-        <Text size="2" color="muted">
-          {row?._count?.members} {formatMessage(labels.members).toLowerCase()}
+        <Text size="sm" color="muted">
+          {row?._count?.members} {t(labels.members).toLowerCase()}
           {' / '}
-          {row?._count?.websites} {formatMessage(labels.websites).toLowerCase()}
+          {row?._count?.websites} {t(labels.websites).toLowerCase()}
         </Text>
-        <Text size="2" color="muted">
+        <Text size="sm" color="muted">
           <DateDistance date={new Date(row.createdAt)} />
         </Text>
       </MobileCardRow>
@@ -57,7 +57,7 @@ function AdminTeamMobileCard({
                 <Icon>
                   <Edit />
                 </Icon>
-                <Text>{formatMessage(labels.edit)}</Text>
+                <Text>{t(labels.edit)}</Text>
               </Row>
             </MenuItem>
             <MenuItem id="delete" onAction={() => onDelete(row.id)} data-test="link-button-delete">
@@ -65,7 +65,7 @@ function AdminTeamMobileCard({
                 <Icon>
                   <Trash />
                 </Icon>
-                <Text>{formatMessage(labels.delete)}</Text>
+                <Text>{t(labels.delete)}</Text>
               </Row>
             </MenuItem>
           </MenuButton>
@@ -78,13 +78,13 @@ function AdminTeamMobileCard({
 export function AdminTeamsTable({
   data = [],
   showActions = true,
-  displayMode,
+  ...props
 }: {
   data: any[];
   showActions?: boolean;
-  displayMode?: string;
+  [key: string]: any;
 }) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
   const [deleteTeam, setDeleteTeam] = useState(null);
   const { isMobile } = useMobile();
 
@@ -102,17 +102,17 @@ export function AdminTeamsTable({
           ))}
         </Column>
       ) : (
-        <DataTable data={data}>
-          <DataColumn id="name" label={formatMessage(labels.name)} width="1fr">
+        <DataTable data={data} {...props}>
+          <DataColumn id="name" label={t(labels.name)} width="1fr">
             {(row: any) => <Link href={`/admin/teams/${row.id}`}>{row.name}</Link>}
           </DataColumn>
-          <DataColumn id="websites" label={formatMessage(labels.members)} width="140px">
+          <DataColumn id="websites" label={t(labels.members)} width="140px">
             {(row: any) => row?._count?.members}
           </DataColumn>
-          <DataColumn id="members" label={formatMessage(labels.websites)} width="140px">
+          <DataColumn id="members" label={t(labels.websites)} width="140px">
             {(row: any) => row?._count?.websites}
           </DataColumn>
-          <DataColumn id="owner" label={formatMessage(labels.owner)}>
+          <DataColumn id="owner" label={t(labels.owner)}>
             {(row: any) => {
               const name = row?.members?.[0]?.user?.username;
 
@@ -123,7 +123,7 @@ export function AdminTeamsTable({
               );
             }}
           </DataColumn>
-          <DataColumn id="created" label={formatMessage(labels.created)} width="160px">
+          <DataColumn id="created" label={t(labels.created)} width="160px">
             {(row: any) => <DateDistance date={new Date(row.createdAt)} />}
           </DataColumn>
           {showActions && (
@@ -138,7 +138,7 @@ export function AdminTeamsTable({
                         <Icon>
                           <Edit />
                         </Icon>
-                        <Text>{formatMessage(labels.edit)}</Text>
+                        <Text>{t(labels.edit)}</Text>
                       </Row>
                     </MenuItem>
                     <MenuItem
@@ -150,7 +150,7 @@ export function AdminTeamsTable({
                         <Icon>
                           <Trash />
                         </Icon>
-                        <Text>{formatMessage(labels.delete)}</Text>
+                        <Text>{t(labels.delete)}</Text>
                       </Row>
                     </MenuItem>
                   </MenuButton>

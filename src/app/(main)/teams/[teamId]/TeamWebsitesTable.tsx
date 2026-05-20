@@ -1,7 +1,7 @@
 import { Column, DataColumn, DataTable, Row, Text } from '@umami/react-zen';
-import Link from 'next/link';
 import { TeamMemberEditButton } from '@/app/(main)/teams/[teamId]/TeamMemberEditButton';
 import { TeamMemberRemoveButton } from '@/app/(main)/teams/[teamId]/TeamMemberRemoveButton';
+import Link from '@/components/common/Link';
 import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
 import { useMessages, useMobile } from '@/components/hooks';
 import { ROLES } from '@/lib/constants';
@@ -15,16 +15,16 @@ function TeamWebsiteMobileCard({
   teamId: string;
   allowEdit: boolean;
 }) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
 
   return (
     <MobileCard>
-      <MobileCardField label={formatMessage(labels.name)}>
+      <MobileCardField label={t(labels.name)}>
         <Link href={`/teams/${teamId}/websites/${row.id}`}>{row.name}</Link>
       </MobileCardField>
-      <MobileCardField label={formatMessage(labels.domain)}>{row.domain}</MobileCardField>
+      <MobileCardField label={t(labels.domain)}>{row.domain}</MobileCardField>
       <MobileCardRow>
-        <Text size="2" color="muted">
+        <Text size="sm" color="muted">
           {row?.createUser?.username}
         </Text>
         {allowEdit && row?.role !== ROLES.teamOwner && (
@@ -46,14 +46,12 @@ export function TeamWebsitesTable({
   teamId,
   data = [],
   allowEdit,
-  displayMode,
 }: {
   teamId: string;
   data: any[];
   allowEdit: boolean;
-  displayMode?: string;
 }) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
   const { isMobile } = useMobile();
 
   if (isMobile) {
@@ -68,11 +66,11 @@ export function TeamWebsitesTable({
 
   return (
     <DataTable data={data}>
-      <DataColumn id="name" label={formatMessage(labels.name)}>
+      <DataColumn id="name" label={t(labels.name)}>
         {(row: any) => <Link href={`/teams/${teamId}/websites/${row.id}`}>{row.name}</Link>}
       </DataColumn>
-      <DataColumn id="domain" label={formatMessage(labels.domain)} />
-      <DataColumn id="createdBy" label={formatMessage(labels.createdBy)}>
+      <DataColumn id="domain" label={t(labels.domain)} />
+      <DataColumn id="createdBy" label={t(labels.createdBy)}>
         {(row: any) => row?.createUser?.username}
       </DataColumn>
       {allowEdit && (

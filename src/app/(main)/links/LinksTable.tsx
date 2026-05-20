@@ -7,8 +7,10 @@ import {
   Row,
   Text,
 } from '@umami/react-zen';
-import Link from 'next/link';
 import { useState } from 'react';
+import { DateDistance } from '@/components/common/DateDistance';
+import { ExternalLink } from '@/components/common/ExternalLink';
+import Link from '@/components/common/Link';
 import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
 import { useMessages, useMobile, useNavigation, useSlug } from '@/components/hooks';
 import { BarChart2, Check, Copy } from '@/components/icons';
@@ -35,8 +37,8 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function LinkMobileCard({ row }: { row: any }) {
-  const { formatMessage, labels } = useMessages();
+function LinkMobileCard({ row, showActions }: { row: any; showActions?: boolean }) {
+  const { t, labels } = useMessages();
   const { websiteId, renderUrl } = useNavigation();
   const { getSlugUrl } = useSlug('link');
 
@@ -45,7 +47,7 @@ function LinkMobileCard({ row }: { row: any }) {
 
   return (
     <MobileCard>
-      <MobileCardField label={formatMessage(labels.name)}>
+      <MobileCardField label={t(labels.name)}>
         <MobileCardRow>
           <Link href={renderUrl(`/links/${id}`)}>{name}</Link>
           <Row alignItems="center" gap="1">
@@ -59,40 +61,42 @@ function LinkMobileCard({ row }: { row: any }) {
         </MobileCardRow>
       </MobileCardField>
 
-      <MobileCardField label={formatMessage(labels.link)}>
+      <MobileCardField label={t(labels.link)}>
         <Row alignItems="center" gap="2">
           <CopyButton text={linkUrl} />
           <Text style={{ wordBreak: 'break-all' }}>
-            <Link href={linkUrl} target="_blank" prefetch={false}>
-              {linkUrl}
-            </Link>
+            <ExternalLink href={linkUrl}>{linkUrl}</ExternalLink>
           </Text>
         </Row>
       </MobileCardField>
 
-      <MobileCardField label={formatMessage(labels.destinationUrl)}>
+      <MobileCardField label={t(labels.destinationUrl)}>
         <Text style={{ wordBreak: 'break-all' }}>
-          <Link href={url} target="_blank" prefetch={false}>
-            {url}
-          </Link>
+          <ExternalLink href={url}>{url}</ExternalLink>
         </Text>
       </MobileCardField>
 
       <MobileCardRow>
-        <Text size="2" color="muted">
-          {new Date(createdAt).toLocaleDateString()}
+        <Text size="sm" color="muted">
+          <DateDistance date={new Date(createdAt)} />
         </Text>
-        <Row>
-          <LinkEditButton linkId={id} />
-          <LinkDeleteButton linkId={id} websiteId={websiteId} name={name} />
-        </Row>
+        {showActions && (
+          <Row>
+            <LinkEditButton linkId={id} />
+            <LinkDeleteButton linkId={id} websiteId={websiteId} name={name} />
+          </Row>
+        )}
       </MobileCardRow>
     </MobileCard>
   );
 }
 
-export function LinksTable({ displayMode, ...props }: DataTableProps & { displayMode?: string }) {
-  const { formatMessage, labels } = useMessages();
+export interface LinksTableProps extends DataTableProps {
+  showActions?: boolean;
+}
+
+export function LinksTable({ showActions, ...props }: LinksTableProps) {
+  const { t, labels } = useMessages();
   const { websiteId, renderUrl } = useNavigation();
   const { getSlugUrl } = useSlug('link');
   const { isMobile } = useMobile();
@@ -101,7 +105,7 @@ export function LinksTable({ displayMode, ...props }: DataTableProps & { display
     return (
       <Column gap="4">
         {props.data.map((row: any) => (
-          <LinkMobileCard key={row.id} row={row} />
+          <LinkMobileCard key={row.id} row={row} showActions={showActions} />
         ))}
       </Column>
     );
@@ -109,7 +113,7 @@ export function LinksTable({ displayMode, ...props }: DataTableProps & { display
 
   return (
     <DataTable {...props}>
-      <DataColumn id="name" label={formatMessage(labels.name)} width="200px">
+      <DataColumn id="name" label={t(labels.name)} width="200px">
         {({ id, name, clicks }: any) => {
           return (
             <Column>
@@ -126,45 +130,43 @@ export function LinksTable({ displayMode, ...props }: DataTableProps & { display
           );
         }}
       </DataColumn>
-      <DataColumn id="slug" label={formatMessage(labels.link)}>
+      <DataColumn id="slug" label={t(labels.link)} width="minmax(0, 1fr)">
         {({ slug, customDomain }: any) => {
           const url = customDomain ? `https://${customDomain.domain}/${slug}` : getSlugUrl(slug);
           return (
-            <Row alignItems="center" gap="2" overflow="hidden">
+            <Row alignItems="center" gap="2" overflow="hidden" style={{ minWidth: 0 }}>
               <CopyButton text={url} />
-              <Text truncate title={url}>
-                <Link href={url} target="_blank" prefetch={false}>
-                  {url}
-                </Link>
-              </Text>
+              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                <ExternalLink href={url}>{url}</ExternalLink>
+              </div>
             </Row>
           );
         }}
       </DataColumn>
-      <DataColumn id="url" label={formatMessage(labels.destinationUrl)}>
+      <DataColumn id="url" label={t(labels.destinationUrl)} width="minmax(0, 1fr)">
         {({ url }: any) => {
           return (
-            <Text truncate title={url}>
-              <Link href={url} target="_blank" prefetch={false}>
-                {url}
-              </Link>
-            </Text>
+            <div style={{ minWidth: 0, overflow: 'hidden' }}>
+              <ExternalLink href={url}>{url}</ExternalLink>
+            </div>
           );
         }}
       </DataColumn>
-      <DataColumn id="created" label={formatMessage(labels.created)} width="110px">
-        {(row: any) => new Date(row.createdAt).toLocaleDateString()}
+      <DataColumn id="created" label={t(labels.created)} width="140px">
+        {(row: any) => <DateDistance date={new Date(row.createdAt)} />}
       </DataColumn>
-      <DataColumn id="action" align="end" width="100px">
-        {({ id, name }: any) => {
-          return (
-            <Row>
-              <LinkEditButton linkId={id} />
-              <LinkDeleteButton linkId={id} websiteId={websiteId} name={name} />
-            </Row>
-          );
-        }}
-      </DataColumn>
+      {showActions && (
+        <DataColumn id="action" align="end" width="100px">
+          {({ id, name }: any) => {
+            return (
+              <Row>
+                <LinkEditButton linkId={id} />
+                <LinkDeleteButton linkId={id} websiteId={websiteId} name={name} />
+              </Row>
+            );
+          }}
+        </DataColumn>
+      )}
     </DataTable>
   );
 }

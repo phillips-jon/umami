@@ -37,7 +37,7 @@ export function PixelEditForm({
   onSave?: () => void;
   onClose?: () => void;
 }) {
-  const { formatMessage, labels, messages, getErrorMessage } = useMessages();
+  const { t, labels, messages, getErrorMessage } = useMessages();
   const { mutateAsync, error, isPending, touch, toast } = useUpdateQuery(
     pixelId ? `/pixels/${pixelId}` : '/pixels',
     {
@@ -46,7 +46,8 @@ export function PixelEditForm({
     },
   );
   const config = useConfig();
-  const hostUrl = config?.pixelsUrl || PIXELS_URL;
+  const pixelsUrl = config?.pixelsUrl;
+  const hostUrl = pixelsUrl || PIXELS_URL;
   const { data, isLoading } = usePixelQuery(pixelId);
   const [slug, setSlug] = useState(generateId());
   const [customDomainId, setCustomDomainId] = useState<string>('');
@@ -62,8 +63,9 @@ export function PixelEditForm({
       { ...formData, customDomainId: customDomainId || null },
       {
         onSuccess: async () => {
-          toast(formatMessage(messages.saved));
+          toast(t(messages.saved));
           touch('pixels');
+          touch(`pixel:${pixelId}`);
           onSave?.();
           onClose?.();
         },
@@ -95,18 +97,14 @@ export function PixelEditForm({
       {({ setValue }) => {
         return (
           <>
-            <FormField
-              label={formatMessage(labels.name)}
-              name="name"
-              rules={{ required: formatMessage(labels.required) }}
-            >
+            <FormField label={t(labels.name)} name="name" rules={{ required: t(labels.required) }}>
               <TextField autoComplete="off" />
             </FormField>
 
             <FormField
               name="slug"
               rules={{
-                required: formatMessage(labels.required),
+                required: t(labels.required),
               }}
               style={{ display: 'none' }}
             >
@@ -115,13 +113,13 @@ export function PixelEditForm({
 
             {config?.customDomainsEnabled && verifiedDomains.length > 0 && (
               <Column gap="1">
-                <Label>{formatMessage(labels.trackingDomain)}</Label>
+                <Label>{t(labels.trackingDomain)}</Label>
                 <Select
                   value={customDomainId}
                   onChange={(value: string) => setCustomDomainId(value)}
                 >
                   <ListItem key="" id="">
-                    {formatMessage(labels.defaultDomain)}
+                    {t(labels.defaultDomain)}
                   </ListItem>
                   {verifiedDomains.map((d: any) => (
                     <ListItem key={d.id} id={d.id}>
@@ -133,7 +131,7 @@ export function PixelEditForm({
             )}
 
             <Column>
-              <Label>{formatMessage(labels.link)}</Label>
+              <Label>{t(labels.link)}</Label>
               <Row alignItems="center" gap>
                 <TextField
                   value={`${pixelBase}/${slug}`}
@@ -153,10 +151,10 @@ export function PixelEditForm({
             <Row justifyContent="flex-end" paddingTop="3" gap="3">
               {onClose && (
                 <Button isDisabled={isPending} onPress={onClose}>
-                  {formatMessage(labels.cancel)}
+                  {t(labels.cancel)}
                 </Button>
               )}
-              <FormSubmitButton isDisabled={false}>{formatMessage(labels.save)}</FormSubmitButton>
+              <FormSubmitButton isDisabled={false}>{t(labels.save)}</FormSubmitButton>
             </Row>
           </>
         );

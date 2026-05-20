@@ -6,9 +6,9 @@ import { LinksTable } from './LinksTable';
 
 const PAGE_SIZE_OPTIONS = [50, 100, 250, 500, 0];
 
-export function LinksDataTable() {
+export function LinksDataTable({ showActions = false }: { showActions?: boolean }) {
   const { teamId, query } = useNavigation();
-  const pageSize = query?.pageSize != null ? Number(query.pageSize) : 50;
+  const pageSize = (query as any)?.pageSize != null ? Number((query as any).pageSize) : 50;
   const [customDomainId, setCustomDomainId] = useState('');
   const { data: domainsData } = useUserCustomDomainsQuery();
   const domains: { id: string; domain: string }[] = domainsData?.data ?? [];
@@ -28,10 +28,13 @@ export function LinksDataTable() {
       <Select
         value={customDomainId}
         onChange={(value: string) => setCustomDomainId(value)}
-        items={items}
         buttonProps={{ style: { minHeight: '40px', minWidth: '160px' } }}
       >
-        {({ id, domain }: any) => <ListItem key={id}>{domain}</ListItem>}
+        {items.map(({ id, domain }) => (
+          <ListItem key={id} id={id}>
+            {domain}
+          </ListItem>
+        ))}
       </Select>
     );
   };
@@ -45,7 +48,7 @@ export function LinksDataTable() {
       pageSizeOptions={PAGE_SIZE_OPTIONS}
       renderActions={renderActions}
     >
-      {({ data }) => <LinksTable data={data} />}
+      {({ data }) => <LinksTable data={data} showActions={showActions} />}
     </DataGrid>
   );
 }

@@ -21,15 +21,15 @@ function WebsiteMobileCard({
   showActions?: boolean;
   renderLink?: (row: any) => ReactNode;
 }) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
   const { renderUrl } = useNavigation();
 
   return (
     <MobileCard>
-      <MobileCardField label={formatMessage(labels.name)}>
+      <MobileCardField label={t(labels.name)}>
         {renderLink ? renderLink(row) : row.name}
       </MobileCardField>
-      <MobileCardField label={formatMessage(labels.domain)}>{row.domain}</MobileCardField>
+      <MobileCardField label={t(labels.domain)}>{row.domain}</MobileCardField>
       {showActions && (
         <MobileCardRow>
           <div />
@@ -44,13 +44,8 @@ function WebsiteMobileCard({
   );
 }
 
-export function WebsitesTable({
-  showActions,
-  renderLink,
-  displayMode,
-  ...props
-}: WebsitesTableProps & { displayMode?: string }) {
-  const { formatMessage, labels } = useMessages();
+export function WebsitesTable({ showActions, renderLink, ...props }: WebsitesTableProps) {
+  const { t, labels } = useMessages();
   const { renderUrl } = useNavigation();
   const { isMobile } = useMobile();
 
@@ -71,10 +66,10 @@ export function WebsitesTable({
 
   return (
     <DataTable {...props}>
-      <DataColumn id="name" label={formatMessage(labels.name)}>
+      <DataColumn id="name" label={t(labels.name)}>
         {renderLink}
       </DataColumn>
-      <DataColumn id="domain" label={formatMessage(labels.domain)} />
+      <DataColumn id="domain" label={t(labels.domain)} />
       {showActions && (
         <DataColumn id="action" label=" " align="end">
           {(row: any) => {

@@ -19,7 +19,7 @@ export function MobileCard({ children }: { children: ReactNode }) {
 export function MobileCardField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <Column gap="1">
-      <Text size="2" weight="bold" color="muted">
+      <Text size="sm" weight="bold" color="muted">
         {label}
       </Text>
       {children}

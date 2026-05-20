@@ -9,27 +9,27 @@ import {
   Row,
   Text,
 } from '@umami/react-zen';
-import Link from 'next/link';
 import { useState } from 'react';
 import { WebsiteDeleteForm } from '@/app/(main)/websites/[websiteId]/settings/WebsiteDeleteForm';
 import { DateDistance } from '@/components/common/DateDistance';
+import Link from '@/components/common/Link';
 import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
 import { useMessages, useMobile } from '@/components/hooks';
 import { Edit, Trash, Users } from '@/components/icons';
 import { MenuButton } from '@/components/input/MenuButton';
 
 function AdminWebsiteMobileCard({ row, onDelete }: { row: any; onDelete: (id: string) => void }) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
 
   return (
     <MobileCard>
-      <MobileCardField label={formatMessage(labels.name)}>
+      <MobileCardField label={t(labels.name)}>
         <Link href={`/admin/websites/${row.id}`}>{row.name}</Link>
       </MobileCardField>
-      <MobileCardField label={formatMessage(labels.domain)}>
+      <MobileCardField label={t(labels.domain)}>
         <Text style={{ wordBreak: 'break-all' }}>{row.domain}</Text>
       </MobileCardField>
-      <MobileCardField label={formatMessage(labels.owner)}>
+      <MobileCardField label={t(labels.owner)}>
         {row?.team ? (
           <Row alignItems="center" gap>
             <Icon>
@@ -42,7 +42,7 @@ function AdminWebsiteMobileCard({ row, onDelete }: { row: any; onDelete: (id: st
         )}
       </MobileCardField>
       <MobileCardRow>
-        <Text size="2" color="muted">
+        <Text size="sm" color="muted">
           <DateDistance date={new Date(row.createdAt)} />
         </Text>
         <MenuButton>
@@ -51,7 +51,7 @@ function AdminWebsiteMobileCard({ row, onDelete }: { row: any; onDelete: (id: st
               <Icon>
                 <Edit />
               </Icon>
-              <Text>{formatMessage(labels.edit)}</Text>
+              <Text>{t(labels.edit)}</Text>
             </Row>
           </MenuItem>
           <MenuItem id="delete" onAction={() => onDelete(row.id)} data-test="link-button-delete">
@@ -59,7 +59,7 @@ function AdminWebsiteMobileCard({ row, onDelete }: { row: any; onDelete: (id: st
               <Icon>
                 <Trash />
               </Icon>
-              <Text>{formatMessage(labels.delete)}</Text>
+              <Text>{t(labels.delete)}</Text>
             </Row>
           </MenuItem>
         </MenuButton>
@@ -68,14 +68,8 @@ function AdminWebsiteMobileCard({ row, onDelete }: { row: any; onDelete: (id: st
   );
 }
 
-export function AdminWebsitesTable({
-  data = [],
-  displayMode,
-}: {
-  data: any[];
-  displayMode?: string;
-}) {
-  const { formatMessage, labels } = useMessages();
+export function AdminWebsitesTable({ data = [], ...props }: { data: any[]; [key: string]: any }) {
+  const { t, labels } = useMessages();
   const [deleteWebsite, setDeleteWebsite] = useState(null);
   const { isMobile } = useMobile();
 
@@ -88,18 +82,18 @@ export function AdminWebsitesTable({
           ))}
         </Column>
       ) : (
-        <DataTable data={data}>
-          <DataColumn id="name" label={formatMessage(labels.name)}>
+        <DataTable data={data} {...props}>
+          <DataColumn id="name" label={t(labels.name)}>
             {(row: any) => (
               <Text truncate>
                 <Link href={`/admin/websites/${row.id}`}>{row.name}</Link>
               </Text>
             )}
           </DataColumn>
-          <DataColumn id="domain" label={formatMessage(labels.domain)}>
+          <DataColumn id="domain" label={t(labels.domain)}>
             {(row: any) => <Text truncate>{row.domain}</Text>}
           </DataColumn>
-          <DataColumn id="owner" label={formatMessage(labels.owner)}>
+          <DataColumn id="owner" label={t(labels.owner)}>
             {(row: any) => {
               if (row?.team) {
                 return (
@@ -120,7 +114,7 @@ export function AdminWebsitesTable({
               );
             }}
           </DataColumn>
-          <DataColumn id="created" label={formatMessage(labels.created)} width="180px">
+          <DataColumn id="created" label={t(labels.created)} width="180px">
             {(row: any) => <DateDistance date={new Date(row.createdAt)} />}
           </DataColumn>
           <DataColumn id="action" align="end" width="50px">
@@ -134,7 +128,7 @@ export function AdminWebsitesTable({
                       <Icon>
                         <Edit />
                       </Icon>
-                      <Text>{formatMessage(labels.edit)}</Text>
+                      <Text>{t(labels.edit)}</Text>
                     </Row>
                   </MenuItem>
                   <MenuItem
@@ -146,7 +140,7 @@ export function AdminWebsitesTable({
                       <Icon>
                         <Trash />
                       </Icon>
-                      <Text>{formatMessage(labels.delete)}</Text>
+                      <Text>{t(labels.delete)}</Text>
                     </Row>
                   </MenuItem>
                 </MenuButton>

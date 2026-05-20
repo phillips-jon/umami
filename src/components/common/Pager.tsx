@@ -20,7 +20,7 @@ export function Pager({
   onPageSizeChange,
   pageSizeOptions,
 }: PagerProps) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
   const maxPage = +pageSize > 0 && count ? Math.ceil(+count / +pageSize) : 0;
   const lastPage = page === maxPage;
   const firstPage = page === 1;
@@ -43,7 +43,7 @@ export function Pager({
 
   return (
     <Row alignItems="center" justifyContent="space-between" gap="3" flexGrow={1}>
-      <Text>{formatMessage(labels.numberOfRecords, { x: count.toLocaleString() })}</Text>
+      <Text>{t(labels.numberOfRecords, { x: count.toLocaleString() })}</Text>
       <Row alignItems="center" justifyContent="flex-end" gap="3">
         {pageSizeOptions && onPageSizeChange && (
           <Row alignItems="center" gap="2">
@@ -51,20 +51,20 @@ export function Pager({
             <Select
               value={String(pageSize)}
               onChange={(value: string) => onPageSizeChange(Number(value))}
-              items={pageSizeOptions.map(size => ({
-                id: String(size),
-                label: size === 0 ? 'All' : String(size),
-              }))}
               buttonProps={{ style: { minHeight: '32px', minWidth: '70px' } }}
             >
-              {({ id, label }: any) => <ListItem key={id}>{label}</ListItem>}
+              {pageSizeOptions.map(size => (
+                <ListItem key={String(size)} id={String(size)}>
+                  {size === 0 ? 'All' : String(size)}
+                </ListItem>
+              ))}
             </Select>
           </Row>
         )}
         {maxPage > 1 && (
           <>
             <Text>
-              {formatMessage(labels.pageOf, {
+              {t(labels.pageOf, {
                 current: page.toLocaleString(),
                 total: maxPage.toLocaleString(),
               })}

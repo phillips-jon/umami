@@ -1,14 +1,14 @@
 import { Column, DataColumn, DataTable, type DataTableProps, Row, Text } from '@umami/react-zen';
-import Link from 'next/link';
 import { DateDistance } from '@/components/common/DateDistance';
 import { ExternalLink } from '@/components/common/ExternalLink';
+import Link from '@/components/common/Link';
 import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
 import { useMessages, useMobile, useNavigation, useSlug } from '@/components/hooks';
 import { PixelDeleteButton } from './PixelDeleteButton';
 import { PixelEditButton } from './PixelEditButton';
 
-function PixelMobileCard({ row }: { row: any }) {
-  const { formatMessage, labels } = useMessages();
+function PixelMobileCard({ row, showActions }: { row: any; showActions?: boolean }) {
+  const { t, labels } = useMessages();
   const { renderUrl } = useNavigation();
   const { getSlugUrl } = useSlug('pixel');
 
@@ -17,7 +17,7 @@ function PixelMobileCard({ row }: { row: any }) {
 
   return (
     <MobileCard>
-      <MobileCardField label={formatMessage(labels.name)}>
+      <MobileCardField label={t(labels.name)}>
         <Link href={renderUrl(`/pixels/${id}`)}>{name}</Link>
       </MobileCardField>
       <MobileCardField label="URL">
@@ -28,20 +28,26 @@ function PixelMobileCard({ row }: { row: any }) {
         </Text>
       </MobileCardField>
       <MobileCardRow>
-        <Text size="2" color="muted">
+        <Text size="sm" color="muted">
           <DateDistance date={new Date(createdAt)} />
         </Text>
-        <Row>
-          <PixelEditButton pixelId={id} />
-          <PixelDeleteButton pixelId={id} name={name} />
-        </Row>
+        {showActions && (
+          <Row>
+            <PixelEditButton pixelId={id} />
+            <PixelDeleteButton pixelId={id} name={name} />
+          </Row>
+        )}
       </MobileCardRow>
     </MobileCard>
   );
 }
 
-export function PixelsTable({ displayMode, ...props }: DataTableProps & { displayMode?: string }) {
-  const { formatMessage, labels } = useMessages();
+export interface PixelsTableProps extends DataTableProps {
+  showActions?: boolean;
+}
+
+export function PixelsTable({ showActions, ...props }: PixelsTableProps) {
+  const { t, labels } = useMessages();
   const { renderUrl } = useNavigation();
   const { getSlugUrl } = useSlug('pixel');
   const { isMobile } = useMobile();
@@ -50,7 +56,7 @@ export function PixelsTable({ displayMode, ...props }: DataTableProps & { displa
     return (
       <Column gap="4">
         {props.data.map((row: any) => (
-          <PixelMobileCard key={row.id} row={row} />
+          <PixelMobileCard key={row.id} row={row} showActions={showActions} />
         ))}
       </Column>
     );
@@ -58,7 +64,7 @@ export function PixelsTable({ displayMode, ...props }: DataTableProps & { displa
 
   return (
     <DataTable {...props}>
-      <DataColumn id="name" label={formatMessage(labels.name)}>
+      <DataColumn id="name" label={t(labels.name)}>
         {({ id, name }: any) => {
           return <Link href={renderUrl(`/pixels/${id}`)}>{name}</Link>;
         }}
@@ -73,21 +79,23 @@ export function PixelsTable({ displayMode, ...props }: DataTableProps & { displa
           );
         }}
       </DataColumn>
-      <DataColumn id="created" label={formatMessage(labels.created)}>
+      <DataColumn id="created" label={t(labels.created)}>
         {(row: any) => <DateDistance date={new Date(row.createdAt)} />}
       </DataColumn>
-      <DataColumn id="action" align="end" width="100px">
-        {(row: any) => {
-          const { id, name } = row;
+      {showActions && (
+        <DataColumn id="action" align="end" width="100px">
+          {(row: any) => {
+            const { id, name } = row;
 
-          return (
-            <Row>
-              <PixelEditButton pixelId={id} />
-              <PixelDeleteButton pixelId={id} name={name} />
-            </Row>
-          );
-        }}
-      </DataColumn>
+            return (
+              <Row>
+                <PixelEditButton pixelId={id} />
+                <PixelDeleteButton pixelId={id} name={name} />
+              </Row>
+            );
+          }}
+        </DataColumn>
+      )}
     </DataTable>
   );
 }

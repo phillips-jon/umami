@@ -44,7 +44,7 @@ function validateRow(row: ParsedRow): string | undefined {
 }
 
 export function LinkImportForm({ teamId, onClose }: { teamId?: string; onClose?: () => void }) {
-  const { formatMessage, labels, messages } = useMessages();
+  const { t, labels, messages } = useMessages();
   const { post } = useApi();
   const { touch } = useModified();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -135,7 +135,7 @@ export function LinkImportForm({ teamId, onClose }: { teamId?: string; onClose?:
           </Column>
         )}
         <Row justifyContent="flex-end">
-          <Button onPress={onClose}>{formatMessage(labels.dismiss)}</Button>
+          <Button onPress={onClose}>{t(labels.dismiss)}</Button>
         </Row>
       </Column>
     );
@@ -144,7 +144,7 @@ export function LinkImportForm({ teamId, onClose }: { teamId?: string; onClose?:
   return (
     <Column gap="4">
       <Row alignItems="baseline" gap="3" style={{ flexWrap: 'wrap' }}>
-        <Text color="muted">{formatMessage(messages.importLinksHelp)}</Text>
+        <Text color="muted">{t(messages.importLinksHelp)}</Text>
         <Button variant="quiet" onPress={downloadExampleCsv} style={{ whiteSpace: 'nowrap' }}>
           Download example CSV
         </Button>
@@ -245,7 +245,7 @@ export function LinkImportForm({ teamId, onClose }: { teamId?: string; onClose?:
       <Row justifyContent="flex-end" gap="3">
         {onClose && (
           <Button isDisabled={isPending} onPress={onClose}>
-            {formatMessage(labels.cancel)}
+            {t(labels.cancel)}
           </Button>
         )}
         <Button
@@ -254,8 +254,8 @@ export function LinkImportForm({ teamId, onClose }: { teamId?: string; onClose?:
           onPress={handleSubmit}
         >
           {isPending
-            ? formatMessage(labels.importing)
-            : `${formatMessage(labels.import)} ${validRows.length > 0 ? `${validRows.length} ` : ''}${formatMessage(labels.links).toLowerCase()}`}
+            ? t(labels.importing)
+            : `${t(labels.import)} ${validRows.length > 0 ? `${validRows.length} ` : ''}${t(labels.links).toLowerCase()}`}
         </Button>
       </Row>
     </Column>

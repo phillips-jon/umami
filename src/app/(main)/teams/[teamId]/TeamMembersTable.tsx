@@ -16,15 +16,15 @@ function TeamMemberMobileCard({
   allowEdit: boolean;
   roles: Record<string, string>;
 }) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
 
   return (
     <MobileCard>
-      <MobileCardField label={formatMessage(labels.username)}>
+      <MobileCardField label={t(labels.username)}>
         {row?.user?.username}
       </MobileCardField>
       <MobileCardRow>
-        <Text size="2" color="muted">
+        <Text size="sm" color="muted">
           {roles[row?.role]}
         </Text>
         {allowEdit && row?.role !== ROLES.teamOwner && (
@@ -53,14 +53,14 @@ export function TeamMembersTable({
   allowEdit: boolean;
   displayMode?: string;
 }) {
-  const { formatMessage, labels } = useMessages();
+  const { t, labels } = useMessages();
   const { isMobile } = useMobile();
 
   const roles = {
-    [ROLES.teamOwner]: formatMessage(labels.teamOwner),
-    [ROLES.teamManager]: formatMessage(labels.teamManager),
-    [ROLES.teamMember]: formatMessage(labels.teamMember),
-    [ROLES.teamViewOnly]: formatMessage(labels.viewOnly),
+    [ROLES.teamOwner]: t(labels.teamOwner),
+    [ROLES.teamManager]: t(labels.teamManager),
+    [ROLES.teamMember]: t(labels.teamMember),
+    [ROLES.teamViewOnly]: t(labels.viewOnly),
   };
 
   if (isMobile) {
@@ -81,10 +81,10 @@ export function TeamMembersTable({
 
   return (
     <DataTable data={data}>
-      <DataColumn id="username" label={formatMessage(labels.username)}>
+      <DataColumn id="username" label={t(labels.username)}>
         {(row: any) => row?.user?.username}
       </DataColumn>
-      <DataColumn id="role" label={formatMessage(labels.role)}>
+      <DataColumn id="role" label={t(labels.role)}>
         {(row: any) => roles[row?.role]}
       </DataColumn>
       {allowEdit && (

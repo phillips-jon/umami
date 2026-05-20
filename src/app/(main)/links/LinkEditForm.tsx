@@ -6,6 +6,7 @@ import {
   Form,
   FormField,
   FormSubmitButton,
+  Grid,
   Icon,
   Label,
   ListItem,
@@ -40,7 +41,7 @@ export function LinkEditForm({
   onSave?: () => void;
   onClose?: () => void;
 }) {
-  const { formatMessage, labels, messages, getErrorMessage } = useMessages();
+  const { t, labels, messages, getErrorMessage } = useMessages();
   const { mutateAsync, error, isPending, touch, toast } = useUpdateQuery(
     linkId ? `/links/${linkId}` : '/links',
     {
@@ -49,9 +50,11 @@ export function LinkEditForm({
     },
   );
   const config = useConfig();
-  const hostUrl = config?.linksUrl || LINKS_URL;
+  const cloudMode = config?.cloudMode;
+  const linksUrl = config?.linksUrl;
+  const hostUrl = linksUrl || LINKS_URL;
   const { data, isLoading } = useLinkQuery(linkId);
-  const [slug, setSlug] = useState(generateId());
+  const [defaultSlug] = useState(generateId());
   const [customDomainId, setCustomDomainId] = useState<string>('');
 
   const { data: customDomainsData } = useUserCustomDomainsQuery();
@@ -65,8 +68,9 @@ export function LinkEditForm({
       { ...formData, customDomainId: customDomainId || null },
       {
         onSuccess: async () => {
-          toast(formatMessage(messages.saved));
+          toast(t(messages.saved));
           touch('links');
+          touch(`link:${linkId}`);
           onSave?.();
           onClose?.();
         },
@@ -74,22 +78,15 @@ export function LinkEditForm({
     );
   };
 
-  const handleSlug = () => {
-    const newSlug = generateId();
-    setSlug(newSlug);
-    return newSlug;
-  };
-
   const checkUrl = (url: string) => {
     if (!isValidUrl(url)) {
-      return formatMessage(labels.invalidUrl);
+      return t(labels.invalidUrl);
     }
     return true;
   };
 
   useEffect(() => {
     if (data) {
-      setSlug(data.slug);
       setCustomDomainId(data.customDomainId ?? '');
     }
   }, [data]);
@@ -99,35 +96,37 @@ export function LinkEditForm({
   }
 
   return (
-    <Form onSubmit={handleSubmit} error={getErrorMessage(error)} defaultValues={{ slug, ...data }}>
-      {({ setValue }) => {
+    <Form
+      onSubmit={handleSubmit}
+      error={getErrorMessage(error)}
+      defaultValues={{ slug: defaultSlug, ...data }}
+    >
+      {({ setValue, watch }) => {
+        const slug = watch('slug');
+
         return (
           <>
-            <FormField
-              label={formatMessage(labels.name)}
-              name="name"
-              rules={{ required: formatMessage(labels.required) }}
-            >
+            <FormField label={t(labels.name)} name="name" rules={{ required: t(labels.required) }}>
               <TextField autoComplete="off" autoFocus />
             </FormField>
 
             <FormField
-              label={formatMessage(labels.destinationUrl)}
+              label={t(labels.destinationUrl)}
               name="url"
-              rules={{ required: formatMessage(labels.required), validate: checkUrl }}
+              rules={{ required: t(labels.required), validate: checkUrl }}
             >
               <TextField placeholder="https://example.com" autoComplete="off" />
             </FormField>
 
-            {config?.customDomainsEnabled && verifiedDomains.length > 0 && (
+            {!cloudMode && config?.customDomainsEnabled && verifiedDomains.length > 0 && (
               <Column gap="1">
-                <Label>{formatMessage(labels.trackingDomain)}</Label>
+                <Label>{t(labels.trackingDomain)}</Label>
                 <Select
                   value={customDomainId}
                   onChange={(value: string) => setCustomDomainId(value)}
                 >
                   <ListItem key="" id="">
-                    {formatMessage(labels.defaultDomain)}
+                    {t(labels.defaultDomain)}
                   </ListItem>
                   {verifiedDomains.map((d: any) => (
                     <ListItem key={d.id} id={d.id}>
@@ -138,44 +137,60 @@ export function LinkEditForm({
               </Column>
             )}
 
-            <Column gap="1">
-              <Label>{formatMessage(labels.link)}</Label>
-              <Row alignItems="center" gap>
-                <span style={{ whiteSpace: 'nowrap', color: 'var(--font-color300)' }}>
-                  {linkBase}/
-                </span>
+            {cloudMode ? (
+              <FormField
+                name="slug"
+                rules={{
+                  required: t(labels.required),
+                }}
+                style={{ display: 'none' }}
+              >
+                <input type="hidden" />
+              </FormField>
+            ) : (
+              <Grid columns="1fr auto" alignItems="end" gap>
                 <FormField
                   name="slug"
+                  label={t(labels.slug)}
                   rules={{
-                    required: formatMessage(labels.required),
+                    required: t(labels.required),
                     validate: (v: string) =>
-                      /^[a-zA-Z0-9_-]+$/.test(v) || formatMessage(labels.invalidSlug),
+                      /^[a-zA-Z0-9_-]+$/.test(v) || t(labels.invalidSlug),
                   }}
-                  style={{ flex: 1 }}
                 >
-                  <TextField autoComplete="off" onChange={(v: string) => setSlug(v)} />
+                  <TextField autoComplete="off" />
                 </FormField>
                 <Button
                   variant="quiet"
-                  onPress={() => {
-                    const next = handleSlug();
-                    setValue('slug', next, { shouldDirty: true });
-                  }}
+                  onPress={() => setValue('slug', generateId(), { shouldDirty: true })}
                 >
                   <Icon>
                     <RefreshCw />
                   </Icon>
                 </Button>
+              </Grid>
+            )}
+
+            <Column>
+              <Label>{t(labels.link)}</Label>
+              <Row alignItems="center" gap>
+                <TextField
+                  value={`${linkBase}/${slug}`}
+                  autoComplete="off"
+                  isReadOnly
+                  allowCopy
+                  style={{ width: '100%' }}
+                />
               </Row>
             </Column>
 
             <Row justifyContent="flex-end" paddingTop="3" gap="3">
               {onClose && (
                 <Button isDisabled={isPending} onPress={onClose}>
-                  {formatMessage(labels.cancel)}
+                  {t(labels.cancel)}
                 </Button>
               )}
-              <FormSubmitButton>{formatMessage(labels.save)}</FormSubmitButton>
+              <FormSubmitButton>{t(labels.save)}</FormSubmitButton>
             </Row>
           </>
         );
