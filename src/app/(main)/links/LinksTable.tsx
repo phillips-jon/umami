@@ -1,18 +1,10 @@
-import {
-  Column,
-  DataColumn,
-  DataTable,
-  type DataTableProps,
-  Icon,
-  Row,
-  Text,
-} from '@umami/react-zen';
+import { Column, DataColumn, DataTable, type DataTableProps, Icon, Row, Text } from '@umami/react-zen';
 import { useState } from 'react';
 import { DateDistance } from '@/components/common/DateDistance';
 import { ExternalLink } from '@/components/common/ExternalLink';
 import Link from '@/components/common/Link';
-import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
-import { useMessages, useMobile, useNavigation, useSlug } from '@/components/hooks';
+import { SortableLabel } from '@/components/common/SortableLabel';
+import { useMessages, useNavigation, useSlug } from '@/components/hooks';
 import { BarChart2, Check, Copy } from '@/components/icons';
 import { LinkDeleteButton } from './LinkDeleteButton';
 import { LinkEditButton } from './LinkEditButton';
@@ -37,60 +29,6 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function LinkMobileCard({ row, showActions }: { row: any; showActions?: boolean }) {
-  const { t, labels } = useMessages();
-  const { websiteId, renderUrl } = useNavigation();
-  const { getSlugUrl } = useSlug('link');
-
-  const { id, name, clicks, slug, customDomain, url, createdAt } = row;
-  const linkUrl = customDomain ? `https://${customDomain.domain}/${slug}` : getSlugUrl(slug);
-
-  return (
-    <MobileCard>
-      <MobileCardField label={t(labels.name)}>
-        <MobileCardRow>
-          <Link href={renderUrl(`/links/${id}`)}>{name}</Link>
-          <Row alignItems="center" gap="1">
-            <Icon size="xs" strokeColor="muted">
-              <BarChart2 />
-            </Icon>
-            <Text color="muted" style={{ fontSize: '11px' }}>
-              {(clicks ?? 0).toLocaleString()}
-            </Text>
-          </Row>
-        </MobileCardRow>
-      </MobileCardField>
-
-      <MobileCardField label={t(labels.link)}>
-        <Row alignItems="center" gap="2">
-          <CopyButton text={linkUrl} />
-          <Text style={{ wordBreak: 'break-all' }}>
-            <ExternalLink href={linkUrl}>{linkUrl}</ExternalLink>
-          </Text>
-        </Row>
-      </MobileCardField>
-
-      <MobileCardField label={t(labels.destinationUrl)}>
-        <Text style={{ wordBreak: 'break-all' }}>
-          <ExternalLink href={url}>{url}</ExternalLink>
-        </Text>
-      </MobileCardField>
-
-      <MobileCardRow>
-        <Text size="sm" color="muted">
-          <DateDistance date={new Date(createdAt)} />
-        </Text>
-        {showActions && (
-          <Row>
-            <LinkEditButton linkId={id} />
-            <LinkDeleteButton linkId={id} websiteId={websiteId} name={name} />
-          </Row>
-        )}
-      </MobileCardRow>
-    </MobileCard>
-  );
-}
-
 export interface LinksTableProps extends DataTableProps {
   showActions?: boolean;
 }
@@ -99,21 +37,10 @@ export function LinksTable({ showActions, ...props }: LinksTableProps) {
   const { t, labels } = useMessages();
   const { websiteId, renderUrl } = useNavigation();
   const { getSlugUrl } = useSlug('link');
-  const { isMobile } = useMobile();
-
-  if (isMobile && props.data) {
-    return (
-      <Column gap="4">
-        {props.data.map((row: any) => (
-          <LinkMobileCard key={row.id} row={row} showActions={showActions} />
-        ))}
-      </Column>
-    );
-  }
 
   return (
     <DataTable {...props}>
-      <DataColumn id="name" label={t(labels.name)} width="200px">
+      <DataColumn id="name" label={<SortableLabel label={t(labels.name)} sortKey="name" />}>
         {({ id, name, clicks }: any) => {
           return (
             <Column>
@@ -130,7 +57,11 @@ export function LinksTable({ showActions, ...props }: LinksTableProps) {
           );
         }}
       </DataColumn>
-      <DataColumn id="slug" label={t(labels.link)} width="minmax(0, 1fr)">
+      <DataColumn
+        id="slug"
+        label={<SortableLabel label={t(labels.link)} sortKey="slug" />}
+        width="25%"
+      >
         {({ slug, customDomain }: any) => {
           const url = customDomain ? `https://${customDomain.domain}/${slug}` : getSlugUrl(slug);
           return (
@@ -143,7 +74,11 @@ export function LinksTable({ showActions, ...props }: LinksTableProps) {
           );
         }}
       </DataColumn>
-      <DataColumn id="url" label={t(labels.destinationUrl)} width="minmax(0, 1fr)">
+      <DataColumn
+        id="url"
+        label={<SortableLabel label={t(labels.destinationUrl)} sortKey="url" />}
+        width="30%"
+      >
         {({ url }: any) => {
           return (
             <div style={{ minWidth: 0, overflow: 'hidden' }}>
@@ -152,7 +87,13 @@ export function LinksTable({ showActions, ...props }: LinksTableProps) {
           );
         }}
       </DataColumn>
-      <DataColumn id="created" label={t(labels.created)} width="140px">
+      <DataColumn
+        id="created"
+        label={
+          <SortableLabel label={t(labels.created)} sortKey="createdAt" defaultDirection="desc" />
+        }
+        width="200px"
+      >
         {(row: any) => <DateDistance date={new Date(row.createdAt)} />}
       </DataColumn>
       {showActions && (

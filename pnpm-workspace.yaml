@@ -1,18 +1,12 @@
 packages:
   - '**'
+  - '!dist'
+  - '!**/dist/**'
 allowBuilds:
-  '@parcel/watcher': true
+  '@parcel/watcher': false
   '@prisma/engines': true
-  '@swc/core': true
-  cypress: true
-  esbuild: true
+  '@swc/core': false
+  esbuild: false
+  msw: false
   prisma: true
-  sharp: true
-ignoredBuiltDependencies:
-  - cypress
-  - esbuild
-  - sharp
-onlyBuiltDependencies:
-  - '@prisma/client'
-  - '@prisma/engines'
-  - prisma
+  sharp: false

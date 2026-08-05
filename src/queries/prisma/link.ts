@@ -1,6 +1,9 @@
 import type { Prisma } from '@/generated/prisma/client';
 import prisma from '@/lib/prisma';
+import { sanitizeSortFilters } from '@/lib/sort';
 import type { QueryFilters } from '@/lib/types';
+
+const LINK_SORT_FIELDS = ['name', 'slug', 'url', 'createdAt'] as const;
 
 export async function findLink(criteria: Prisma.LinkFindUniqueArgs) {
   return prisma.client.link.findUnique(criteria);
@@ -18,7 +21,8 @@ export async function getLink(linkId: string) {
 }
 
 export async function getLinks(criteria: Prisma.LinkFindManyArgs, filters: QueryFilters = {}) {
-  const { search } = filters;
+  const sortFilters = sanitizeSortFilters(filters, LINK_SORT_FIELDS);
+  const { search } = sortFilters;
   const { getSearchParameters, pagedQuery } = prisma;
 
   const where: Prisma.LinkWhereInput = {
@@ -30,7 +34,7 @@ export async function getLinks(criteria: Prisma.LinkFindManyArgs, filters: Query
     ]),
   };
 
-  return pagedQuery('link', { ...criteria, where, orderBy: { createdAt: 'desc' } }, filters);
+  return pagedQuery('link', { ...criteria, where }, sortFilters);
 }
 
 async function appendClickCounts(result: any) {

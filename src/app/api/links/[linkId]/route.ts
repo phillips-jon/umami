@@ -24,7 +24,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ link
 
 export async function POST(request: Request, { params }: { params: Promise<{ linkId: string }> }) {
   const schema = z.object({
-    name: z.string().optional(),
+    name: z.string().max(100).optional(),
     url: z
       .string()
       .url()

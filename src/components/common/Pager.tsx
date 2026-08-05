@@ -6,6 +6,7 @@ export interface PagerProps {
   page: string | number;
   pageSize: string | number;
   count: string | number;
+  isCapped?: boolean;
   onPageChange: (nextPage: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   pageSizeOptions?: number[];
@@ -16,6 +17,7 @@ export function Pager({
   page,
   pageSize,
   count,
+  isCapped,
   onPageChange,
   onPageSizeChange,
   pageSizeOptions,
@@ -24,6 +26,7 @@ export function Pager({
   const maxPage = +pageSize > 0 && count ? Math.ceil(+count / +pageSize) : 0;
   const lastPage = page === maxPage;
   const firstPage = page === 1;
+  const showNavigation = maxPage > 1 || isCapped;
 
   if (count === 0 || (!maxPage && !pageSizeOptions)) {
     return null;
@@ -37,17 +40,25 @@ export function Pager({
     }
   };
 
-  if (maxPage === 1 && !pageSizeOptions) {
+  if (!showNavigation && !pageSizeOptions) {
     return null;
   }
 
+  const displayCount = isCapped ? `10,000+` : (+count).toLocaleString();
+
   return (
-    <Row alignItems="center" justifyContent="space-between" gap="3" flexGrow={1}>
-      <Text>{t(labels.numberOfRecords, { x: count.toLocaleString() })}</Text>
-      <Row alignItems="center" justifyContent="flex-end" gap="3">
+    <Row alignItems="center" justifyContent="space-between" gap="3" flexGrow={1} wrap="wrap">
+      <Text color="muted">{t(labels.numberOfRecords, { x: displayCount })}</Text>
+      <Row
+        alignItems="center"
+        justifyContent="flex-end"
+        gap="3"
+        wrap="nowrap"
+        style={{ whiteSpace: 'nowrap' }}
+      >
         {pageSizeOptions && onPageSizeChange && (
           <Row alignItems="center" gap="2">
-            <Text>Show</Text>
+            <Text color="muted">Show</Text>
             <Select
               value={String(pageSize)}
               onChange={(value: string) => onPageSizeChange(Number(value))}
@@ -61,9 +72,9 @@ export function Pager({
             </Select>
           </Row>
         )}
-        {maxPage > 1 && (
+        {showNavigation && (
           <>
-            <Text>
+            <Text color="muted">
               {t(labels.pageOf, {
                 current: page.toLocaleString(),
                 total: maxPage.toLocaleString(),

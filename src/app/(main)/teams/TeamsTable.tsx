@@ -1,52 +1,19 @@
-import { Column, DataColumn, DataTable, type DataTableProps, Text } from '@umami/react-zen';
+import { DataColumn, DataTable, type DataTableProps } from '@umami/react-zen';
 import type { ReactNode } from 'react';
-import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
-import { useMessages, useMobile } from '@/components/hooks';
+import { SortableLabel } from '@/components/common/SortableLabel';
+import { useMessages } from '@/components/hooks';
 import { ROLES } from '@/lib/constants';
 
 export interface TeamsTableProps extends DataTableProps {
   renderLink?: (row: any) => ReactNode;
 }
 
-function TeamMobileCard({ row, renderLink }: { row: any; renderLink?: (row: any) => ReactNode }) {
-  const { t, labels } = useMessages();
-  const owner = row?.members?.find(({ role }) => role === ROLES.teamOwner)?.user?.username;
-
-  return (
-    <MobileCard>
-      <MobileCardField label={t(labels.name)}>
-        {renderLink ? renderLink(row) : row.name}
-      </MobileCardField>
-      <MobileCardField label={t(labels.owner)}>{owner}</MobileCardField>
-      <MobileCardRow>
-        <Text size="sm" color="muted">
-          {row?._count?.members} {t(labels.members).toLowerCase()}
-        </Text>
-        <Text size="sm" color="muted">
-          {row?._count?.websites} {t(labels.websites).toLowerCase()}
-        </Text>
-      </MobileCardRow>
-    </MobileCard>
-  );
-}
-
 export function TeamsTable({ renderLink, ...props }: TeamsTableProps) {
   const { t, labels } = useMessages();
-  const { isMobile } = useMobile();
-
-  if (isMobile && props.data) {
-    return (
-      <Column gap="4">
-        {props.data.map((row: any) => (
-          <TeamMobileCard key={row.id} row={row} renderLink={renderLink} />
-        ))}
-      </Column>
-    );
-  }
 
   return (
     <DataTable {...props}>
-      <DataColumn id="name" label={t(labels.name)}>
+      <DataColumn id="name" label={<SortableLabel label={t(labels.name)} sortKey="name" />}>
         {renderLink}
       </DataColumn>
       <DataColumn id="owner" label={t(labels.owner)}>

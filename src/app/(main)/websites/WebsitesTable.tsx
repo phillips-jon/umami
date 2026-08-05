@@ -1,8 +1,9 @@
-import { Column, DataColumn, DataTable, type DataTableProps, Icon } from '@umami/react-zen';
+import { DataColumn, DataTable, type DataTableProps, Icon } from '@umami/react-zen';
 import type { ReactNode } from 'react';
+import { DateDistance } from '@/components/common/DateDistance';
 import { LinkButton } from '@/components/common/LinkButton';
-import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
-import { useMessages, useMobile, useNavigation } from '@/components/hooks';
+import { SortableLabel } from '@/components/common/SortableLabel';
+import { useMessages, useNavigation } from '@/components/hooks';
 import { SquarePen } from '@/components/icons';
 
 export interface WebsitesTableProps extends DataTableProps {
@@ -12,64 +13,25 @@ export interface WebsitesTableProps extends DataTableProps {
   renderLink?: (row: any) => ReactNode;
 }
 
-function WebsiteMobileCard({
-  row,
-  showActions,
-  renderLink,
-}: {
-  row: any;
-  showActions?: boolean;
-  renderLink?: (row: any) => ReactNode;
-}) {
-  const { t, labels } = useMessages();
-  const { renderUrl } = useNavigation();
-
-  return (
-    <MobileCard>
-      <MobileCardField label={t(labels.name)}>
-        {renderLink ? renderLink(row) : row.name}
-      </MobileCardField>
-      <MobileCardField label={t(labels.domain)}>{row.domain}</MobileCardField>
-      {showActions && (
-        <MobileCardRow>
-          <div />
-          <LinkButton href={renderUrl(`/websites/${row.id}/settings`)} variant="quiet">
-            <Icon>
-              <SquarePen />
-            </Icon>
-          </LinkButton>
-        </MobileCardRow>
-      )}
-    </MobileCard>
-  );
-}
-
 export function WebsitesTable({ showActions, renderLink, ...props }: WebsitesTableProps) {
   const { t, labels } = useMessages();
   const { renderUrl } = useNavigation();
-  const { isMobile } = useMobile();
-
-  if (isMobile && props.data) {
-    return (
-      <Column gap="4">
-        {props.data.map((row: any) => (
-          <WebsiteMobileCard
-            key={row.id}
-            row={row}
-            showActions={showActions}
-            renderLink={renderLink}
-          />
-        ))}
-      </Column>
-    );
-  }
 
   return (
     <DataTable {...props}>
-      <DataColumn id="name" label={t(labels.name)}>
+      <DataColumn id="name" label={<SortableLabel label={t(labels.name)} sortKey="name" />}>
         {renderLink}
       </DataColumn>
-      <DataColumn id="domain" label={t(labels.domain)} />
+      <DataColumn id="domain" label={<SortableLabel label={t(labels.domain)} sortKey="domain" />} />
+      <DataColumn
+        id="created"
+        label={
+          <SortableLabel label={t(labels.created)} sortKey="createdAt" defaultDirection="desc" />
+        }
+        width="200px"
+      >
+        {(row: any) => <DateDistance date={new Date(row.createdAt)} />}
+      </DataColumn>
       {showActions && (
         <DataColumn id="action" label=" " align="end">
           {(row: any) => {

@@ -1,6 +1,5 @@
 import {
   Button,
-  Column,
   DataColumn,
   DataTable,
   type DataTableProps,
@@ -11,78 +10,20 @@ import {
   Row,
   Text,
 } from '@umami/react-zen';
-import Link from '@/components/common/Link';
 import { Avatar } from '@/components/common/Avatar';
 import { DateDistance } from '@/components/common/DateDistance';
 import { IconLabel } from '@/components/common/IconLabel';
-import { MobileCard, MobileCardField, MobileCardRow } from '@/components/common/MobileCard';
+import Link from '@/components/common/Link';
 import { TypeIcon } from '@/components/common/TypeIcon';
-import { useFormat, useMessages, useMobile, useNavigation } from '@/components/hooks';
+import { useFormat, useMessages, useNavigation } from '@/components/hooks';
 import { Eye, FileText } from '@/components/icons';
 import { EventData } from '@/components/metrics/EventData';
 import { Lightning } from '@/components/svg';
-
-function EventMobileCard({ row }: { row: any }) {
-  const { t, labels } = useMessages();
-  const { formatValue } = useFormat();
-  const { updateParams } = useNavigation();
-
-  return (
-    <MobileCard>
-      <MobileCardField label={t(labels.event)}>
-        <Row alignItems="center" wrap="wrap" gap>
-          <IconLabel
-            icon={row.eventName ? <Lightning /> : <Eye />}
-            label={t(row.eventName ? labels.triggeredEvent : labels.viewedPage)}
-          />
-          <Text weight="bold" style={{ wordBreak: 'break-all' }}>
-            {row.eventName || row.urlPath}
-          </Text>
-          {row.hasData > 0 && <PropertiesButton websiteId={row.websiteId} eventId={row.id} />}
-        </Row>
-      </MobileCardField>
-      <MobileCardRow>
-        <Link href={updateParams({ session: row.sessionId })}>
-          <Avatar seed={row.sessionId} size={32} />
-        </Link>
-        <TypeIcon type="country" value={row.country}>
-          {row.city ? `${row.city}, ` : ''}
-          {formatValue(row.country, 'country')}
-        </TypeIcon>
-      </MobileCardRow>
-      <MobileCardRow>
-        <TypeIcon type="browser" value={row.browser}>
-          {formatValue(row.browser, 'browser')}
-        </TypeIcon>
-        <TypeIcon type="device" value={row.device}>
-          {formatValue(row.device, 'device')}
-        </TypeIcon>
-      </MobileCardRow>
-      <MobileCardRow>
-        <Text size="sm" color="muted">
-          <DateDistance date={new Date(row.createdAt)} />
-        </Text>
-        <div />
-      </MobileCardRow>
-    </MobileCard>
-  );
-}
 
 export function EventsTable(props: DataTableProps) {
   const { t, labels } = useMessages();
   const { updateParams } = useNavigation();
   const { formatValue } = useFormat();
-  const { isMobile } = useMobile();
-
-  if (isMobile && props.data) {
-    return (
-      <Column gap="4">
-        {props.data.map((row: any, i: number) => (
-          <EventMobileCard key={row.id || i} row={row} />
-        ))}
-      </Column>
-    );
-  }
 
   const renderLink = (label: string, hostname: string) => {
     return (
