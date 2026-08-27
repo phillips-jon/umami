@@ -9,9 +9,11 @@ const SCRIPT_NAME = 'script.js';
 export function WebsiteTrackingCode({
   websiteId,
   hostUrl,
+  showHeader = true,
 }: {
   websiteId: string;
   hostUrl?: string;
+  showHeader?: boolean;
 }) {
   const { t, messages, labels } = useMessages();
   const config = useConfig();
@@ -54,12 +56,12 @@ export function WebsiteTrackingCode({
 
   return (
     <Column gap>
-      <Label>{t(labels.trackingCode)}</Label>
+      {showHeader && <Label>{t(labels.trackingCode)}</Label>}
       <Text color="muted">{t(messages.trackingCode)}</Text>
       {showDomainSelector && (
         <Column gap="1">
           <Label>{t(labels.trackingDomain)}</Label>
-          <Select value={selectedDomain} onChange={(value: string) => setSelectedDomain(value)}>
+          <Select value={selectedDomain} onChange={value => setSelectedDomain(value as string)}>
             <ListItem key="" id="">
               {t(labels.defaultDomain)}
             </ListItem>

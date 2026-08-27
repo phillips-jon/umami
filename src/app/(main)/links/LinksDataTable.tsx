@@ -27,7 +27,7 @@ export function LinksDataTable({ showActions = false }: { showActions?: boolean 
     return (
       <Select
         value={customDomainId}
-        onChange={(value: string) => setCustomDomainId(value)}
+        onChange={value => setCustomDomainId(value as string)}
         buttonProps={{ style: { minHeight: '40px', minWidth: '160px' } }}
       >
         {items.map(({ id, domain }) => (

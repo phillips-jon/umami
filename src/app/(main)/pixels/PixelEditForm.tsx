@@ -116,7 +116,7 @@ export function PixelEditForm({
                 <Label>{t(labels.trackingDomain)}</Label>
                 <Select
                   value={customDomainId}
-                  onChange={(value: string) => setCustomDomainId(value)}
+                  onChange={value => setCustomDomainId(value as string)}
                 >
                   <ListItem key="" id="">
                     {t(labels.defaultDomain)}

@@ -61,7 +61,7 @@ export function Pager({
             <Text color="muted">Show</Text>
             <Select
               value={String(pageSize)}
-              onChange={(value: string) => onPageSizeChange(Number(value))}
+              onChange={value => onPageSizeChange(Number(value))}
               buttonProps={{ style: { minHeight: '32px', minWidth: '70px' } }}
             >
               {pageSizeOptions.map(size => (
