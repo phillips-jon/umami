@@ -1,7 +1,5 @@
 packages:
-  - '**'
-  - '!dist'
-  - '!**/dist/**'
+  - 'packages/*'
 allowBuilds:
   '@parcel/watcher': false
   '@prisma/engines': true
